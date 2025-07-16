@@ -1,6 +1,12 @@
 import * as React from "react";
 
-import { IconSvgProps } from "@/types";
+// Define the IconSvgProps interface
+interface IconSvgProps {
+  size?: number;
+  width?: number;
+  height?: number;
+  [key: string]: any; // For additional props
+}
 
 export const Logo: React.FC<IconSvgProps> = ({
   size = 36,
@@ -22,7 +28,6 @@ export const Logo: React.FC<IconSvgProps> = ({
     />
   </svg>
 );
-
 
 export const GithubIcon: React.FC<IconSvgProps> = ({
   size = 24,
@@ -143,6 +148,7 @@ export const SearchIcon = (props: IconSvgProps) => (
     />
   </svg>
 );
+
 export const HeartIcon = ({
   size = 24,
   width,
@@ -150,7 +156,7 @@ export const HeartIcon = ({
   strokeWidth = 1.5,
   fill = "none",
   ...props
-}) => {
+}: IconSvgProps) => {
   return (
     <svg
       aria-hidden="true"
@@ -295,6 +301,7 @@ export const ChatBubbleIcon: React.FC<IconSvgProps> = ({
     />
   </svg>
 );
+
 export const UserIcon: React.FC<IconSvgProps> = ({
   size = 24,
   width,
@@ -342,66 +349,64 @@ export const VideoCameraIcon: React.FC<IconSvgProps> = ({
   </svg>
 );
 
-export const ShareButton = ({size = 24, width, height, ...props}) => {
+export const ShareButton = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-  <path fillRule="evenodd" d="M15.75 4.5a3 3 0 1 1 .825 2.066l-8.421 4.679a3.002 3.002 0 0 1 0 1.51l8.421 4.679a3 3 0 1 1-.729 1.31l-8.421-4.678a3 3 0 1 1 0-4.132l8.421-4.679a3 3 0 0 1-.096-.755Z" clipRule="evenodd" />
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+      <path fillRule="evenodd" d="M15.75 4.5a3 3 0 1 1 .825 2.066l-8.421 4.679a3.002 3.002 0 0 1 0 1.51l8.421 4.679a3 3 0 1 1-.729 1.31l-8.421-4.678a3 3 0 1 1 0-4.132l8.421-4.679a3 3 0 0 1-.096-.755Z" clipRule="evenodd" />
+    </svg>
   );
 };
 
-export const FullButton = ({size = 24, width, height, ...props}) => {
+export const FullButton = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-  <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
-</svg>
-  );
-};
-export const SaveButton = ({size = 24, width, height, ...props}) => {
-  return (
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+      <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clipRule="evenodd" />
+    </svg>
   );
 };
 
-
-
-export const Comments = ({size = 24, width, height, ...props}) => {
+export const SaveButton = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-  <path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 0 1-3.476.383.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97Z" clipRule="evenodd" />
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="size-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+    </svg>
   );
 };
 
-export const PLusbutton = ({size = 24, width, height, ...props}) => {
+export const Comments = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-  <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+      <path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0 1 12 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 0 1-3.476.383.39.39 0 0 0-.297.17l-2.755 4.133a.75.75 0 0 1-1.248 0l-2.755-4.133a.39.39 0 0 0-.297-.17 48.9 48.9 0 0 1-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97Z" clipRule="evenodd" />
+    </svg>
   );
 };
 
-export const More = ({size = 24, width, height, ...props}) => {
+export const PLusbutton = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-  <path fillRule="evenodd" d="M4.5 12a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z" clipRule="evenodd" />
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+      <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
+    </svg>
   );
 };
 
-export const Eye = ({size = 24, width, height, ...props}) => {
+export const More = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-  <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-  <path fillRule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clipRule="evenodd" />
-</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+      <path fillRule="evenodd" d="M4.5 12a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z" clipRule="evenodd" />
+    </svg>
   );
 };
 
+export const Eye = ({ size = 24, width, height, ...props }: IconSvgProps) => {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+      <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+      <path fillRule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clipRule="evenodd" />
+    </svg>
+  );
+};
 
-export const PauseCircleIcon = ({size = 24, width, height, ...props}) => {
+export const PauseCircleIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
     <svg
       aria-hidden="true"
@@ -421,7 +426,7 @@ export const PauseCircleIcon = ({size = 24, width, height, ...props}) => {
   );
 };
 
-export const NextIcon = ({size = 24, width, height, ...props}) => {
+export const NextIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
     <svg
       aria-hidden="true"
@@ -445,7 +450,7 @@ export const NextIcon = ({size = 24, width, height, ...props}) => {
   );
 };
 
-export const PreviousIcon = ({size = 24, width, height, ...props}) => {
+export const PreviousIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
     <svg
       aria-hidden="true"
@@ -469,7 +474,7 @@ export const PreviousIcon = ({size = 24, width, height, ...props}) => {
   );
 };
 
-export const RepeatOneIcon = ({size = 24, width, height, ...props}) => {
+export const RepeatOneIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
     <svg
       aria-hidden="true"
@@ -497,7 +502,7 @@ export const RepeatOneIcon = ({size = 24, width, height, ...props}) => {
   );
 };
 
-export const ShuffleIcon = ({size = 24, width, height, ...props}) => {
+export const ShuffleIcon = ({ size = 24, width, height, ...props }: IconSvgProps) => {
   return (
     <svg
       aria-hidden="true"

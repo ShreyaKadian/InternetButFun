@@ -1,5 +1,5 @@
+// pages/ChatPage.tsx or equivalent
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
@@ -8,7 +8,23 @@ import { Avatar } from "@heroui/avatar";
 import DefaultLayout from "@/layouts/default";
 import { getAuth } from "firebase/auth";
 import { title } from "@/components/primitives";
-import ErrorPage from "@/components/ErrorPage";
+
+// Basic ErrorPage component definition (replace with your actual implementation if different)
+const ErrorPage = ({ errorType, onRefresh }: { errorType: string; onRefresh?: () => void }) => {
+  return (
+    <div className="text-center">
+      <p>Error: {errorType}</p>
+      {onRefresh && <button onClick={onRefresh}>Refresh</button>}
+    </div>
+  );
+};
+
+// Extend @heroui/avatar types to fix onError prop
+declare module "@heroui/avatar" {
+  interface AvatarProps {
+    onError?: (event: React.SyntheticEvent<HTMLImageElement>) => void;
+  }
+}
 
 interface ChatMessage {
   type: string;
@@ -39,79 +55,75 @@ export default function ChatPage() {
     return "";
   };
 
-  useEffect(() => {
-    const setupChat = async () => {
-      const token = await getToken();
-      if (!token) {
-        setError("unauthorized");
+  const setupChat = async () => {
+    const token = await getToken();
+    if (!token) {
+      setError("unauthorized");
+      return;
+    }
+    if (wsRef.current) return; // Prevent multiple connections
+
+    // Register user with /Auth endpoint
+    try {
+      const response = await fetch("http://localhost:8000/Auth", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        console.error("Failed to register user:", await response.text());
+        if (response.status === 401 || response.status === 403) {
+          setError("unauthorized");
+        } else if (response.status >= 500) {
+          setError("serverError");
+        } else {
+          setError("networkError");
+        }
         return;
       }
-      if (wsRef.current) return; // Prevent multiple connections
+      console.log("Auth response:", await response.json());
+    } catch (error) {
+      console.error("Error registering user:", error);
+      setError("networkError");
+      return;
+    }
 
-      // Register user with /Auth endpoint
-      try {
-        const response = await fetch("http://localhost:8000/Auth", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          console.error("Failed to register user:", await response.text());
-          if (response.status === 401 || response.status === 403) {
-            setError("unauthorized");
-          } else if (response.status >= 500) {
-            setError("serverError");
-          } else {
-            setError("networkError");
-          }
-          return;
-        }
-        console.log("Auth response:", await response.json());
-      } catch (error) {
-        console.error("Error registering user:", error);
-        setError("networkError");
-        return;
-      }
+    // Connect to WebSocket
+    const socket = new WebSocket(`ws://localhost:8000/chat?token=Bearer%20${token}`);
+    wsRef.current = socket;
 
-      // Connect to WebSocket
-      const socket = new WebSocket(`ws://localhost:8000/chat?token=Bearer%20${token}`);
-      wsRef.current = socket;
-
-      socket.onopen = () => {
-        console.log("WebSocket connected");
-        setError(null); // Clear any previous errors
-      };
-
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        setMessages((prev) => {
-          const isDuplicate = prev.some(
-            (msg) =>
-              msg.timestamp === data.timestamp && msg.sender_id === data.sender_id
-          );
-          return isDuplicate ? prev : [...prev, data];
-        });
-      };
-
-      socket.onclose = (event) => {
-        console.log("WebSocket disconnected:", event.reason, event.code);
-        wsRef.current = null;
-        if (event.code === 1006 || event.code >= 4000) {
-          setError("networkError"); // Abnormal closure or custom error
-        }
-      };
-
-      socket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-        setError("networkError");
-      };
-
-      return () => {
-        socket.close();
-      };
+    socket.onopen = () => {
+      console.log("WebSocket connected");
+      setError(null); // Clear any previous errors
     };
 
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setMessages((prev) => {
+        const isDuplicate = prev.some(
+          (msg) =>
+            msg.timestamp === data.timestamp && msg.sender_id === data.sender_id
+        );
+        return isDuplicate ? prev : [...prev, data];
+      });
+    };
+
+    socket.onclose = (event) => {
+      console.log("WebSocket disconnected:", event.reason, event.code);
+      wsRef.current = null;
+      if (event.code === 1006 || event.code >= 4000) {
+        setError("networkError"); // Abnormal closure or custom error
+      }
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      setError("networkError");
+    };
+  };
+
+  useEffect(() => {
     setupChat();
 
     // Cleanup on unmount
@@ -147,11 +159,7 @@ export default function ChatPage() {
       wsRef.current.close();
       wsRef.current = null;
     }
-    // Trigger setupChat again by re-running useEffect
-    const setup = async () => {
-      await setupChat();
-    };
-    setup();
+    setupChat();
   };
 
   if (error) {
@@ -159,7 +167,7 @@ export default function ChatPage() {
       <DefaultLayout>
         <section className="flex flex-col items-center gap-6 py-8 md:py-10">
           <h1 className={`${title()} mb-4 text-center`}>Chat</h1>
-          <ErrorPage errorType={error} />
+          <ErrorPage errorType={error} onRefresh={handleRefresh} />
         </section>
       </DefaultLayout>
     );
@@ -183,7 +191,7 @@ export default function ChatPage() {
                       src={msg.imageUrl || "https://via.placeholder.com/40"}
                       alt={msg.username}
                       className="w-10 h-10 flex-column"
-                      onError={(e) => {
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         e.currentTarget.src = "https://via.placeholder.com/40";
                       }}
                     />

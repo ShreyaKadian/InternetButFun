@@ -4,9 +4,8 @@ import DefaultLayout from "@/layouts/default";
 import React, { useEffect, useRef, useState } from "react";
 import { Navbar2 } from "@/components/navbar2";
 import { auth } from "../../firebase/firebase";
-import ErrorPage from "@/components/ErrorPage"; // Import the ErrorPage component
+import ErrorPage from "@/components/ErrorPage";
 
-// TypeScript interface for a post - updated to match your backend
 interface Post {
   _id: string;
   title: string;
@@ -23,6 +22,7 @@ interface Post {
   likes: string[];
   saves: string[];
   comments: Comment[];
+  userProfilePic?: string;
 }
 
 interface Comment {
@@ -40,7 +40,6 @@ export default function DocsPage() {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  // Function to get Firebase auth token
   const getAuthToken = async (): Promise<string | null> => {
     try {
       const user = auth.currentUser;
@@ -54,7 +53,6 @@ export default function DocsPage() {
     }
   };
 
-  // Load posts from your FastAPI backend
   const loadPosts = async (isInitial: boolean = false) => {
     if (loading || (!hasMore && !isInitial)) return;
 
@@ -107,12 +105,10 @@ export default function DocsPage() {
     }
   };
 
-  // Load posts on mount
   useEffect(() => {
     loadPosts(true);
   }, []);
 
-  // Set up IntersectionObserver for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -131,7 +127,6 @@ export default function DocsPage() {
     };
   }, [hasMore, loading]);
 
-  // Handle post interactions
   const handleLike = async (postId: string) => {
     try {
       const token = await getAuthToken();
@@ -293,9 +288,10 @@ export default function DocsPage() {
                 likeCount={post.like_count}
                 saveCount={post.save_count}
                 commentCount={post.comment_count}
+                userProfilePic={post.userProfilePic}
                 onLike={() => handleLike(post._id)}
                 onSave={() => handleSave(post._id)}
-                onComment={(content) => handleComment(post._id, content)}
+                onComment={(content: string) => handleComment(post._id, content)}
               />
             ))
           )}

@@ -6,6 +6,13 @@ import { PLusbutton } from "@/components/icons";
 import { getAuth } from "firebase/auth";
 import ErrorPage from "@/components/ErrorPage";
 
+// Extend @heroui/react types to fix onError prop for Image
+declare module "@heroui/react" {
+  interface ImageProps {
+    onError?: (event: React.SyntheticEvent<HTMLImageElement>) => void;
+  }
+}
+
 interface Item {
   _id: string;
   title: string;
@@ -31,10 +38,10 @@ export default function NewsPage() {
       const user = auth.currentUser;
       if (user) {
         const token = await user.getIdToken(true); // Force refresh
-        console.log('Auth token:', token); // Debug log
+        console.log("Auth token:", token); // Debug log
         return token;
       }
-      console.log('No user logged in');
+      console.log("No user logged in");
       return null;
     } catch (error) {
       console.error("Error getting auth token:", error);
@@ -65,7 +72,7 @@ export default function NewsPage() {
       });
 
       if (!response.ok) {
-        console.log('Response status:', response.status); // Debug log
+        console.log("Response status:", response.status); // Debug log
         if (response.status === 404) {
           setError("notFound");
         } else if (response.status >= 500) {
@@ -79,7 +86,7 @@ export default function NewsPage() {
       }
 
       const newItems: Item[] = await response.json();
-      console.log('Fetched items:', newItems); // Debug log
+      console.log("Fetched items:", newItems); // Debug log
 
       if (isInitial) {
         setItems(newItems);
@@ -195,7 +202,7 @@ export default function NewsPage() {
                     alt={item.title}
                     className="object-cover rounded-xl w-full h-[23.5rem]"
                     src={item.url || "https://heroui.com/images/hero-card-complete.jpeg"}
-                    onError={(e) => {
+                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                       e.currentTarget.src = "https://heroui.com/images/hero-card-complete.jpeg";
                     }}
                   />
