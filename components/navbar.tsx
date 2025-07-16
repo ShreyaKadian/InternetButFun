@@ -9,12 +9,12 @@ import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import { auth } from "@/firebase/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import toast from "react-hot-toast";
 
 export const Navbar = () => {
-  const [clickedItem, setClickedItem] = useState(null);
-  const [user, setUser] = useState(null);
+  const [clickedItem, setClickedItem] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export const Navbar = () => {
           duration: 4000,
           position: "top-center",
           style: {
-            background: "#FF0000", // Match PostCard toast style
+            background: "#FF0000",
             color: "#FFFFFF",
             borderRadius: "10px",
             padding: "16px 24px",
@@ -47,9 +47,10 @@ export const Navbar = () => {
             textAlign: "center",
           },
         });
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Logout failed:", error);
-        toast.error(`Logout failed: ${error.message || "Unknown error"}`, {
+        const message = error instanceof Error ? error.message : "Unknown error";
+        toast.error(`Logout failed: ${message}`, {
           duration: 4000,
           position: "top-center",
           style: {
@@ -83,11 +84,11 @@ export const Navbar = () => {
                 ? "Logout"
                 : "Login"
               : `#${item.label}`;
-            const textColor = item.textColor || "inherit";
 
             return (
-              <div
+              <button
                 key={item.href}
+                type="button"
                 className={clsx(
                   "w-full rounded-2xl h-[3.55rem] shadow-md transition-all duration-600 ease-out",
                   clickedItem === item.href ? "scale-110 shadow-lg" : "scale-100 shadow-md",
@@ -99,50 +100,29 @@ export const Navbar = () => {
                   setTimeout(() => setClickedItem(null), 300);
                   if (isAuthItem) {
                     handleAuthClick();
+                  } else {
+                    router.push(item.href);
                   }
                 }}
               >
-                {isAuthItem ? (
-                  <div
+                <div
+                  className={clsx(
+                    "flex items-center gap-2 w-full rounded px-3 py-2 text-left hover:bg-opacity-80",
+                    isActive ? "text-primary font-medium" : ""
+                  )}
+                  style={{ backgroundColor: "transparent", color: "#000" }}
+                >
+                  {Icon && <Icon size={50} />}
+                  <span
                     className={clsx(
-                      "flex items-center gap-2 w-full rounded px-3 py-2 text-left hover:bg-opacity-80 cursor-pointer",
-                      isActive ? "text-primary font-medium" : ""
+                      "text-2xl",
+                      isActive ? "underline underline-offset-4 decoration-2" : ""
                     )}
-                    style={{ backgroundColor: "transparent", color: textColor }}
                   >
-                    {Icon && <Icon size={50} />}
-                    <span
-                      className={clsx(
-                        "text-2xl",
-                        isActive ? "underline underline-offset-4 decoration-2" : ""
-                      )}
-                      style={isActive ? { textDecorationColor: textColor } : {}}
-                    >
-                      {displayLabel}
-                    </span>
-                  </div>
-                ) : (
-                  <NextLink
-                    href={item.href}
-                    className={clsx(
-                      "flex items-center gap-2 w-full rounded px-3 py-2 text-left hover:bg-opacity-80",
-                      isActive ? "text-primary font-medium" : ""
-                    )}
-                    style={{ backgroundColor: "transparent", color: textColor }}
-                  >
-                    {Icon && <Icon size={50} />}
-                    <span
-                      className={clsx(
-                        "text-2xl",
-                        isActive ? "underline underline-offset-4 decoration-2" : ""
-                      )}
-                      style={isActive ? { textDecorationColor: textColor } : {}}
-                    >
-                      #{item.label}
-                    </span>
-                  </NextLink>
-                )}
-              </div>
+                    {displayLabel}
+                  </span>
+                </div>
+              </button>
             );
           })}
         </div>
