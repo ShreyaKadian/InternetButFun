@@ -110,7 +110,7 @@ export default function IndexPage() {
     }
   };
 
-  const handleImageClick = (e: MouseEvent<HTMLImageElement>): void => {
+  const handleImageClick = (e: MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault();
     fileInputRef.current?.click();
   };
@@ -182,16 +182,20 @@ export default function IndexPage() {
         </h2>
 
         <div className="p-8">
-          <img
-            alt="Click to change"
-            className="w-96 h-72 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-black"
-            src={imageUrl}
+          <button
+            type="button"
             onClick={handleImageClick}
-            onError={() =>
-              setImageUrl("https://placehold.co/600x400?text=Click+to+Upload")
-            }
-          />
-
+            className="w-96 h-72 rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-black"
+          >
+            <img
+              alt="Click to change"
+              className="w-full h-full object-cover rounded-lg"
+              src={imageUrl}
+              onError={() =>
+                setImageUrl("https://placehold.co/600x400?text=Click+to+Upload")
+              }
+            />
+          </button>
           <input
             ref={fileInputRef}
             accept="image/*"

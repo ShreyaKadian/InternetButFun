@@ -1,9 +1,7 @@
-// pages/add-post.tsx
 import { useState } from "react";
 import { Input, Textarea, Button } from "@heroui/react";
 
-import { auth } from "../../firebase/firebase"; // ✅ Use this
-
+import { auth } from "../../firebase/firebase"; 
 export default function AddPostPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -87,8 +85,15 @@ export default function AddPostPage() {
         onChange={(e) => setContent(e.target.value)}
       />
 
-      <label className="block font-medium text-sm">Add Image</label>
-      <input accept="image/*" type="file" onChange={handleImageChange} />
+<label htmlFor="image-upload" className="block font-medium text-sm">
+  Add Image
+</label>
+<input
+  id="image-upload"
+  accept="image/*"
+  type="file"
+  onChange={handleImageChange}
+/>
 
       <Button color="primary" onClick={handleSubmit}>
         Post
