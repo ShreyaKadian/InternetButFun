@@ -127,10 +127,14 @@ export const Navbar = () => {
                   >
                     {displayLabel}
                   </span>
+
                 </div>
               </button>
+
+              
+
             );
-            <ThemeSwitch />;
+
           })}
         </div>
       </NavbarContent>
