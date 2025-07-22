@@ -1,6 +1,7 @@
 // pages/add-updates.tsx
 import { useState } from "react";
 import { Input, Textarea, Button } from "@heroui/react";
+
 import { auth } from "../../firebase/firebase";
 
 export default function AddUpdatesPage() {
@@ -11,6 +12,7 @@ export default function AddUpdatesPage() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
       setImageFile(file);
     }
@@ -19,6 +21,7 @@ export default function AddUpdatesPage() {
   const toBase64 = (file: File) =>
     new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
+
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
@@ -29,6 +32,7 @@ export default function AddUpdatesPage() {
 
     try {
       const user = auth.currentUser;
+
       if (!user) throw new Error("Not logged in");
 
       const token = await user.getIdToken();
@@ -54,6 +58,7 @@ export default function AddUpdatesPage() {
 
       if (!res.ok) {
         const errText = await res.text();
+
         throw new Error(errText || "Failed to post update");
       }
 
@@ -76,10 +81,10 @@ export default function AddUpdatesPage() {
         label="Title"
         placeholder="Enter your title"
         type="text"
-        variant="bordered"
         value={title}
-        onClear={() => setTitle("")}
+        variant="bordered"
         onChange={(e) => setTitle(e.target.value)}
+        onClear={() => setTitle("")}
       />
 
       <Textarea
@@ -87,12 +92,12 @@ export default function AddUpdatesPage() {
         label="Description"
         labelPlacement="outside"
         placeholder="Enter your description"
-        variant="bordered"
         value={content}
+        variant="bordered"
         onChange={(e) => setContent(e.target.value)}
       />
 
-      <input type="file" accept="image/*" onChange={handleImageChange} />
+      <input accept="image/*" type="file" onChange={handleImageChange} />
 
       <Button color="primary" onClick={handleSubmit}>
         Post

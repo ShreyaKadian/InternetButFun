@@ -1,16 +1,15 @@
 "use client";
-import {
-  Navbar as HeroUINavbar,
-  NavbarContent,
-} from "@heroui/navbar";
-import { siteConfig } from "@/config/site";
+import { Navbar as HeroUINavbar, NavbarContent } from "@heroui/navbar";
 import clsx from "clsx";
-import NextLink from "next/link";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { auth } from "@/firebase/firebase";
 import { onAuthStateChanged, signOut, User } from "firebase/auth";
 import toast from "react-hot-toast";
+
+import { ThemeSwitch } from "./theme-switch";
+
+import { auth } from "@/firebase/firebase";
+import { siteConfig } from "@/config/site";
 
 export const Navbar = () => {
   const [clickedItem, setClickedItem] = useState<string | null>(null);
@@ -21,6 +20,7 @@ export const Navbar = () => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -49,7 +49,9 @@ export const Navbar = () => {
         });
       } catch (error: unknown) {
         console.error("Logout failed:", error);
-        const message = error instanceof Error ? error.message : "Unknown error";
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
+
         toast.error(`Logout failed: ${message}`, {
           duration: 4000,
           position: "top-center",
@@ -88,13 +90,15 @@ export const Navbar = () => {
             return (
               <button
                 key={item.href}
-                type="button"
                 className={clsx(
                   "w-full rounded-2xl h-[3.55rem] shadow-md transition-all duration-600 ease-out",
-                  clickedItem === item.href ? "scale-110 shadow-lg" : "scale-100 shadow-md",
-                  isActive ? "shadow-lg" : "hover:scale-105 hover:shadow-md"
+                  clickedItem === item.href
+                    ? "scale-110 shadow-lg"
+                    : "scale-100 shadow-md",
+                  isActive ? "shadow-lg" : "hover:scale-105 hover:shadow-md",
                 )}
                 style={{ backgroundColor: item.bgColor }}
+                type="button"
                 onClick={() => {
                   setClickedItem(item.href);
                   setTimeout(() => setClickedItem(null), 300);
@@ -108,7 +112,7 @@ export const Navbar = () => {
                 <div
                   className={clsx(
                     "flex items-center gap-2 w-full rounded px-3 py-2 text-left hover:bg-opacity-80",
-                    isActive ? "text-primary font-medium" : ""
+                    isActive ? "text-primary font-medium" : "",
                   )}
                   style={{ backgroundColor: "transparent", color: "#000" }}
                 >
@@ -116,7 +120,9 @@ export const Navbar = () => {
                   <span
                     className={clsx(
                       "text-2xl",
-                      isActive ? "underline underline-offset-4 decoration-2" : ""
+                      isActive
+                        ? "underline underline-offset-4 decoration-2"
+                        : "",
                     )}
                   >
                     {displayLabel}
@@ -124,6 +130,7 @@ export const Navbar = () => {
                 </div>
               </button>
             );
+            <ThemeSwitch />;
           })}
         </div>
       </NavbarContent>

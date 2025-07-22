@@ -1,10 +1,11 @@
 import { Avatar, Card, CardHeader, CardBody, Image } from "@heroui/react";
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { User, setPersistence, browserLocalPersistence } from "firebase/auth";
+
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { HeartIcon, Comments } from "@/components/icons";
 import { auth, onAuthStateChanged } from "@/firebase/firebase";
-import { User, setPersistence, browserLocalPersistence } from "firebase/auth";
 import ErrorPage from "@/components/ErrorPage";
 
 interface UpdateItem {
@@ -37,17 +38,23 @@ export default function UpdatesPage() {
 
       try {
         const token = await auth.currentUser.getIdToken(true);
+
         if (!token) {
           console.log("No auth token found");
           setError("unauthorized");
           setLoading(false);
+
           return;
         }
         console.log("Auth token:", token);
 
-        const response = await fetch(`http://localhost:8000/blog?page=${pageNum}&limit=10`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(
+          `http://localhost:8000/blog?page=${pageNum}&limit=10`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+
         console.log("Fetch updates response status:", response.status);
 
         if (!response.ok) {
@@ -61,10 +68,12 @@ export default function UpdatesPage() {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           setLoading(false);
+
           return;
         }
 
         const data = await response.json();
+
         console.log("Fetched items:", data);
 
         if (data.length < 10) setHasMore(false);
@@ -73,7 +82,9 @@ export default function UpdatesPage() {
           _id: item._id,
           title: item.title,
           content: item.content,
-          image_url: item.image_url || "https://heroui.com/images/hero-card-complete.jpeg",
+          image_url:
+            item.image_url ||
+            "https://heroui.com/images/hero-card-complete.jpeg",
           username: item.username,
           created_at: new Date(item.created_at).toLocaleString(),
           liked: item.liked,
@@ -83,7 +94,11 @@ export default function UpdatesPage() {
         }));
 
         setItems((prev) => {
-          const uniqueItems = newItems.filter((newItem: UpdateItem) => !prev.some((item) => item._id === newItem._id));
+          const uniqueItems = newItems.filter(
+            (newItem: UpdateItem) =>
+              !prev.some((item) => item._id === newItem._id),
+          );
+
           return uniqueItems.length > 0 ? [...prev, ...uniqueItems] : prev;
         });
       } catch (error) {
@@ -93,29 +108,39 @@ export default function UpdatesPage() {
         setLoading(false);
       }
     },
-    [loading, hasMore, auth.currentUser]
+    [loading, hasMore, auth.currentUser],
   );
 
   const handleLike = async (updateId: string, isLiked: boolean) => {
     if (!auth.currentUser) {
       setError("unauthorized");
+
       return;
     }
 
     try {
       const token = await auth.currentUser.getIdToken(true);
+
       if (!token) {
         console.log("No auth token found for like");
         setError("unauthorized");
+
         return;
       }
       console.log("Like token:", token);
 
       const endpoint = isLiked ? "/unlike" : "/like";
-      const response = await fetch(`http://localhost:8000/updates/${updateId}${endpoint}`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      });
+      const response = await fetch(
+        `http://localhost:8000/updates/${updateId}${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
       if (!response.ok) {
         console.log("Like response status:", response.status);
         if (response.status === 401 || response.status === 403) {
@@ -125,6 +150,7 @@ export default function UpdatesPage() {
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         return;
       }
 
@@ -136,8 +162,8 @@ export default function UpdatesPage() {
                 liked: !isLiked,
                 like_count: item.like_count + (isLiked ? -1 : 1),
               }
-            : item
-        )
+            : item,
+        ),
       );
     } catch (error) {
       console.error("Error liking/unliking update:", error);
@@ -180,10 +206,11 @@ export default function UpdatesPage() {
           }, 500);
         }
       },
-      { threshold: 0.1, rootMargin: "100px" }
+      { threshold: 0.1, rootMargin: "100px" },
     );
 
     const currentLoader = loaderRef.current;
+
     if (currentLoader) observer.observe(currentLoader);
 
     return () => {
@@ -218,22 +245,37 @@ export default function UpdatesPage() {
                 <CardHeader className="relative pb-0 pt-2 px-4 flex-col items-start">
                   <div className="flex gap-3 items-center mt-2">
                     <Avatar
-                      src={item.image_url || "https://i.pravatar.cc/150?u=a042581f4e29026024d"}
                       alt={item.username}
+                      src={
+                        item.image_url ||
+                        "https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                      }
                       onError={() => {
-                        const img = document.querySelector(`img[src="${item.image_url}"]`) as HTMLImageElement;
-                        if (img) img.src = "https://i.pravatar.cc/150?u=a042581f4e29026024d";
+                        const img = document.querySelector(
+                          `img[src="${item.image_url}"]`,
+                        ) as HTMLImageElement;
+
+                        if (img)
+                          img.src =
+                            "https://i.pravatar.cc/150?u=a042581f4e29026024d";
                       }}
                     />
-                    <p className="text-tiny uppercase font-bold">{item.username}</p>
+                    <p className="text-tiny uppercase font-bold">
+                      {item.username}
+                    </p>
                   </div>
                   <h4 className="font-bold text-large mt-1">{item.title}</h4>
-                  <small className="text-default-500 mt-1">{item.content}</small>
+                  <small className="text-default-500 mt-1">
+                    {item.content}
+                  </small>
                   <div className="absolute top-2 right-4 flex flex-col items-center gap-3">
                     <HeartIcon
-                      height={35}
-                      width={30}
                       fill={item.liked ? "red" : "none"}
+                      height={35}
+                      role="button"
+                      style={{ cursor: "pointer" }}
+                      tabIndex={0}
+                      width={30}
                       onClick={() => handleLike(item._id, item.liked)}
                       onKeyDown={(e: React.KeyboardEvent<SVGSVGElement>) => {
                         if (e.key === "Enter" || e.key === " ") {
@@ -241,12 +283,9 @@ export default function UpdatesPage() {
                           handleLike(item._id, item.liked);
                         }
                       }}
-                      role="button"
-                      tabIndex={0}
-                      style={{ cursor: "pointer" }}
                     />
                     <span>{item.like_count}</span>
-                    <Comments height={20} width={20} role="img" />
+                    <Comments height={20} role="img" width={20} />
                     <span>{item.comment_count}</span>
                   </div>
                 </CardHeader>
@@ -254,10 +293,18 @@ export default function UpdatesPage() {
                   <Image
                     alt={item.title}
                     className="object-cover rounded-xl w-full h-auto"
-                    src={item.image_url || "https://heroui.com/images/hero-card-complete.jpeg"}
+                    src={
+                      item.image_url ||
+                      "https://heroui.com/images/hero-card-complete.jpeg"
+                    }
                     onError={() => {
-                      const img = document.querySelector(`img[src="${item.image_url}"]`) as HTMLImageElement;
-                      if (img) img.src = "https://heroui.com/images/hero-card-complete.jpeg";
+                      const img = document.querySelector(
+                        `img[src="${item.image_url}"]`,
+                      ) as HTMLImageElement;
+
+                      if (img)
+                        img.src =
+                          "https://heroui.com/images/hero-card-complete.jpeg";
                     }}
                   />
                 </CardBody>

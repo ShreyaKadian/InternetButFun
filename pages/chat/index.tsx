@@ -5,12 +5,19 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Card, CardBody } from "@heroui/card";
 import { Avatar } from "@heroui/avatar";
-import DefaultLayout from "@/layouts/default";
 import { getAuth } from "firebase/auth";
+
+import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 
 // Basic ErrorPage component definition (replace with your actual implementation if different)
-const ErrorPage = ({ errorType, onRefresh }: { errorType: string; onRefresh?: () => void }) => {
+const ErrorPage = ({
+  errorType,
+  onRefresh,
+}: {
+  errorType: string;
+  onRefresh?: () => void;
+}) => {
   return (
     <div className="text-center">
       <p>Error: {errorType}</p>
@@ -46,19 +53,25 @@ export default function ChatPage() {
   const getToken = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
+
     if (user) {
       const token = await user.getIdToken(true); // Force refresh
+
       console.log("Auth token:", token); // Debug log
+
       return token;
     }
     console.log("No user logged in");
+
     return "";
   };
 
   const setupChat = async () => {
     const token = await getToken();
+
     if (!token) {
       setError("unauthorized");
+
       return;
     }
     if (wsRef.current) return; // Prevent multiple connections
@@ -71,6 +84,7 @@ export default function ChatPage() {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (!response.ok) {
         console.error("Failed to register user:", await response.text());
         if (response.status === 401 || response.status === 403) {
@@ -80,17 +94,22 @@ export default function ChatPage() {
         } else {
           setError("networkError");
         }
+
         return;
       }
       console.log("Auth response:", await response.json());
     } catch (error) {
       console.error("Error registering user:", error);
       setError("networkError");
+
       return;
     }
 
     // Connect to WebSocket
-    const socket = new WebSocket(`ws://localhost:8000/chat?token=Bearer%20${token}`);
+    const socket = new WebSocket(
+      `ws://localhost:8000/chat?token=Bearer%20${token}`,
+    );
+
     wsRef.current = socket;
 
     socket.onopen = () => {
@@ -100,11 +119,14 @@ export default function ChatPage() {
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+
       setMessages((prev) => {
         const isDuplicate = prev.some(
           (msg) =>
-            msg.timestamp === data.timestamp && msg.sender_id === data.sender_id
+            msg.timestamp === data.timestamp &&
+            msg.sender_id === data.sender_id,
         );
+
         return isDuplicate ? prev : [...prev, data];
       });
     };
@@ -162,17 +184,6 @@ export default function ChatPage() {
     setupChat();
   };
 
-  if (error) {
-    return (
-      <DefaultLayout>
-        <section className="flex flex-col items-center gap-6 py-8 md:py-10">
-          <h1 className={`${title()} mb-4 text-center`}>Chat</h1>
-          <ErrorPage errorType={error} onRefresh={handleRefresh} />
-        </section>
-      </DefaultLayout>
-    );
-  }
-
   return (
     <DefaultLayout>
       <div className="flex flex-col h-[calc(100vh-5.5rem)]">
@@ -188,9 +199,9 @@ export default function ChatPage() {
                 <CardBody className="flex items-start gap-3">
                   <div className="flex items-center gap-2">
                     <Avatar
-                      src={msg.imageUrl || "https://via.placeholder.com/40"}
                       alt={msg.username}
                       className="w-10 h-10 flex-column"
+                      src={msg.imageUrl || "https://via.placeholder.com/40"}
                       onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         e.currentTarget.src = "https://via.placeholder.com/40";
                       }}
@@ -201,7 +212,11 @@ export default function ChatPage() {
                     </span>
                   </div>
                   <div className="flex-1">
-                    <p className={msg.type === "system" ? "text-gray-500 italic" : ""}>
+                    <p
+                      className={
+                        msg.type === "system" ? "text-gray-500 italic" : ""
+                      }
+                    >
                       {msg.content}
                     </p>
                   </div>
@@ -214,13 +229,16 @@ export default function ChatPage() {
         <div className="flex gap-2">
           <Input
             ref={inputRef}
+            className="flex-1"
+            placeholder="Type a message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Type a message..."
-            className="flex-1"
           />
-          <Button onClick={sendMessage} disabled={!wsRef.current || !input.trim()}>
+          <Button
+            disabled={!wsRef.current || !input.trim()}
+            onClick={sendMessage}
+          >
             Send
           </Button>
         </div>

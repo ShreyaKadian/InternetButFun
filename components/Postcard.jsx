@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 import { Card, CardBody, Image, Button } from "@heroui/react";
@@ -76,7 +76,8 @@ export default function PostCard({
               src={
                 showPostImage && imageUrl
                   ? imageUrl
-                  : userProfilePic || "https://heroui.com/images/album-cover.png"
+                  : userProfilePic ||
+                    "https://heroui.com/images/album-cover.png"
               }
             />
           </div>
@@ -100,7 +101,7 @@ export default function PostCard({
                 isIconOnly
                 className={clsx(
                   "text-default-900/60 data-[hover]:bg-foreground/10 ml-2 flex-shrink-0 transition-colors",
-                  liked ? "text-black" : ""
+                  liked ? "text-black" : "",
                 )}
                 radius="full"
                 variant="light"
@@ -139,7 +140,7 @@ export default function PostCard({
                 </Button>
                 {showTooltip.comment && (
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-[#333] font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50 w-36 text-sm">
-                     coming soon!💫
+                    coming soon!💫
                   </div>
                 )}
               </div>
@@ -169,7 +170,7 @@ export default function PostCard({
                 </Button>
                 {showTooltip.share && (
                   <div className="absolute w-36 text-sm -top-10 left-1/2 -translate-x-1/2 bg-white text-[#333]  font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50">
-                     coming soon!💫
+                    coming soon!💫
                   </div>
                 )}
               </div>
@@ -187,7 +188,7 @@ export default function PostCard({
                 </Button>
                 {showTooltip.more && (
                   <div className="absolute w-36 text-sm -top-10 left-1/2 -translate-x-1/2 bg-white text-[#333] font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50 ">
-                     coming soon!💫
+                    coming soon!💫
                   </div>
                 )}
               </div>

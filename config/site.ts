@@ -4,10 +4,8 @@ import {
   NewspaperIcon,
   VideoCameraIcon,
   DocumentTextIcon,
-  DocumentIcon,
   UserIcon,
-  PLusbutton,
-} from '@/components/icons';
+} from "@/components/icons";
 
 export const siteConfig = {
   name: "Next.js + HeroUI",

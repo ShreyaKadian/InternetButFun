@@ -19,19 +19,39 @@ export default function DMPage() {
 
   const [dummyMessages, setDummyMessages] = useState({
     user1: [
-      { id: 1, sender: "QuirkyLilSigma", text: "Yo, what’s good?", time: "12:00 PM" },
+      {
+        id: 1,
+        sender: "QuirkyLilSigma",
+        text: "Yo, what’s good?",
+        time: "12:00 PM",
+      },
       { id: 2, sender: "You", text: "Just chillin’, you?", time: "12:01 PM" },
     ],
     user2: [
-      { id: 3, sender: "SkyWalker", text: "Up in the clouds today!", time: "01:15 PM" },
+      {
+        id: 3,
+        sender: "SkyWalker",
+        text: "Up in the clouds today!",
+        time: "01:15 PM",
+      },
       { id: 4, sender: "You", text: "Nice, any pics?", time: "01:16 PM" },
     ],
     user3: [
-      { id: 5, sender: "CloudChaser", text: "Caught a storm brewing!", time: "02:30 PM" },
+      {
+        id: 5,
+        sender: "CloudChaser",
+        text: "Caught a storm brewing!",
+        time: "02:30 PM",
+      },
       { id: 6, sender: "You", text: "Whoa, stay safe!", time: "02:31 PM" },
     ],
     user4: [
-      { id: 7, sender: "SigmaBoi", text: "Sigma vibes only!", time: "03:45 PM" },
+      {
+        id: 7,
+        sender: "SigmaBoi",
+        text: "Sigma vibes only!",
+        time: "03:45 PM",
+      },
       { id: 8, sender: "You", text: "Heck yeah!", time: "03:46 PM" },
     ],
   });
@@ -43,7 +63,10 @@ export default function DMPage() {
         id: Date.now(),
         sender: "You",
         text: message,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       };
       setDummyMessages((prev) => ({
         ...prev,
@@ -87,21 +110,29 @@ export default function DMPage() {
               >
                 <div className="flex flex-col">
                   <div className="flex items-center">
-                    <span className="text-small text-default-500 mr-2">{msg.sender}</span>
+                    <span className="text-small text-default-500 mr-2">
+                      {msg.sender}
+                    </span>
                     <div
                       className={`p-2 rounded-lg flex items-center ${
-                        msg.sender === "You" ? "bg-primary-500 text-white" : "bg-default-100"
+                        msg.sender === "You"
+                          ? "bg-primary-500 text-white"
+                          : "bg-default-100"
                       }`}
                     >
                       <span className="mr-2">{msg.text}</span>
-                      <span className="text-tiny text-opacity-80">{msg.time}</span>
+                      <span className="text-tiny text-opacity-80">
+                        {msg.time}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-center text-default-500">Select a user to start chatting</p>
+            <p className="text-center text-default-500">
+              Select a user to start chatting
+            </p>
           )}
         </div>
         <form onSubmit={handleSend} className="p-2">

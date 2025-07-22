@@ -1,19 +1,24 @@
 import { useState } from "react";
-import {createUserWithEmailAndPassword,signInWithEmailAndPassword} from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth } from "@/config/firebase/firebase";
 import { Input } from "@heroui/react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/router";
 
-
 export const Auth = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<{
-    type: "error" | "success",
-    text: string
-  } | null>(null);
+  const [message, setMessage] =
+    (useState <
+      {
+        type: "error" | "success",
+        text: string,
+      }) |
+    (null > null);
   const [isSignUp, setIsSignUp] = useState(true);
 
   const handleAuth = async () => {
@@ -38,7 +43,6 @@ export const Auth = () => {
   };
 
   return (
-  
     <div className="flex flex-col items-center gap-4 p-6 max-w-md mx-auto bg-white rounded-xl shadow-md">
       <h2 className="text-xl font-semibold">
         {isSignUp ? "Create an Account" : "Welcome Back"}

@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, CardHeader, CardBody, Image, Button } from "@heroui/react";
+import { getAuth } from "firebase/auth";
+
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { PLusbutton } from "@/components/icons";
-import { getAuth } from "firebase/auth";
 import ErrorPage from "@/components/ErrorPage";
 
 // Extend @heroui/react types to fix onError prop for Image
@@ -36,15 +37,20 @@ export default function NewsPage() {
   const getAuthToken = async (): Promise<string | null> => {
     try {
       const user = auth.currentUser;
+
       if (user) {
         const token = await user.getIdToken(true); // Force refresh
+
         console.log("Auth token:", token); // Debug log
+
         return token;
       }
       console.log("No user logged in");
+
       return null;
     } catch (error) {
       console.error("Error getting auth token:", error);
+
       return null;
     }
   };
@@ -58,18 +64,23 @@ export default function NewsPage() {
 
     try {
       const token = await getAuthToken();
+
       if (!token) {
         setError("unauthorized");
         setLoading(false);
+
         return;
       }
 
-      const response = await fetch(`http://localhost:8000/news?page=${page}&limit=10`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `http://localhost:8000/news?page=${page}&limit=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         console.log("Response status:", response.status); // Debug log
@@ -82,17 +93,22 @@ export default function NewsPage() {
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         return;
       }
 
       const newItems: Item[] = await response.json();
+
       console.log("Fetched items:", newItems); // Debug log
 
       if (isInitial) {
         setItems(newItems);
       } else {
         setItems((prev) => {
-          const uniqueItems = newItems.filter((newItem) => !prev.some((item) => item._id === newItem._id));
+          const uniqueItems = newItems.filter(
+            (newItem) => !prev.some((item) => item._id === newItem._id),
+          );
+
           return [...prev, ...uniqueItems];
         });
       }
@@ -127,12 +143,13 @@ export default function NewsPage() {
           setPage((p) => p + 1);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     if (loaderRef.current) {
       observer.observe(loaderRef.current);
     }
+
     return () => {
       if (loaderRef.current) {
         observer.unobserve(loaderRef.current);
@@ -153,6 +170,7 @@ export default function NewsPage() {
     const then = new Date(dateStr);
     const diffMs = now.getTime() - then.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
     return `${diffHours} hours ago`;
   };
 
@@ -189,24 +207,37 @@ export default function NewsPage() {
               <Card key={item._id} className="px-2 py-4 w-[27rem] h-auto">
                 <CardHeader className="pb-0 pt-2 px-4 flex-col items-start relative">
                   <div className="absolute top-2 right-2">
-                    <Button className="p-1" onClick={() => toggleExpand(item._id)}>
+                    <Button
+                      className="p-1"
+                      onClick={() => toggleExpand(item._id)}
+                    >
                       <PLusbutton height={20} width={20} />
                     </Button>
                   </div>
-                  <h4 className="font-semibold text-large mb-1">{item.title}</h4>
+                  <h4 className="font-semibold text-large mb-1">
+                    {item.title}
+                  </h4>
                   <small className="text-default-500">{item.author}</small>
-                  <small className="text-default-500">{getHoursAgo(item.date)}</small>
+                  <small className="text-default-500">
+                    {getHoursAgo(item.date)}
+                  </small>
                 </CardHeader>
                 <CardBody className="overflow-visible py-2">
                   <Image
                     alt={item.title}
                     className="object-cover rounded-xl w-full h-[23.5rem]"
-                    src={item.url || "https://heroui.com/images/hero-card-complete.jpeg"}
+                    src={
+                      item.url ||
+                      "https://heroui.com/images/hero-card-complete.jpeg"
+                    }
                     onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                      e.currentTarget.src = "https://heroui.com/images/hero-card-complete.jpeg";
+                      e.currentTarget.src =
+                        "https://heroui.com/images/hero-card-complete.jpeg";
                     }}
                   />
-                  {expandedItem === item._id && <p className="mt-2 text-small">{item.content}</p>}
+                  {expandedItem === item._id && (
+                    <p className="mt-2 text-small">{item.content}</p>
+                  )}
                 </CardBody>
               </Card>
             ))

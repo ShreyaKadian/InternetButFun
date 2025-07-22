@@ -18,7 +18,12 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "components/Postcard.jsx", "components/Postcard.jsx"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "components/Postcard.jsx",
+    "components/Postcard.jsx"
+  ],
   "exclude": ["node_modules"]
 }
-

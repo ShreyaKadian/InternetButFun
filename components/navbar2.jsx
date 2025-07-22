@@ -20,8 +20,7 @@ export const Navbar2 = () => {
     <div className="fixed top-20 right-0 h-screen w-96 z-40 p-4 flex flex-col justify-between text-center ">
       {/* Top Section */}
       <div className="flex flex-col gap-6 text-center ">
-        <div className="flex items-center gap-2">
-        </div>
+        <div className="flex items-center gap-2"></div>
 
         {/* Nav Items */}
         <nav className="flex shadow-md flex-col gap-2 bg-[#fffce1] w-full rounded-full h-[3rem] text-xl text-center">
@@ -32,8 +31,12 @@ export const Navbar2 = () => {
               className={clsx(
                 "block w-full rounded-full px-3 py-2 text-left hover:bg-[#fffce1] transition-colors transition-all duration-600 ease-out no-underline border-none",
                 "data-[active=true]:text-primary data-[active=true]:font-medium",
-                clickedItem === item.href ? "scale-110 shadow-lg" : "scale-100 shadow-md",
-                router.asPath === item.href ? "scale-100" : "hover:scale-105 hover:shadow-md"
+                clickedItem === item.href
+                  ? "scale-110 shadow-lg"
+                  : "scale-100 shadow-md",
+                router.asPath === item.href
+                  ? "scale-100"
+                  : "hover:scale-105 hover:shadow-md",
               )}
               onClick={() => handleItemClick(item.href)}
             >
@@ -44,8 +47,7 @@ export const Navbar2 = () => {
       </div>
 
       {/* Bottom Section */}
-      <div className="flex flex-col gap-2">
-      </div>
+      <div className="flex flex-col gap-2"></div>
     </div>
   );
 };

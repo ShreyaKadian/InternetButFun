@@ -1,6 +1,7 @@
 // pages/add-post.tsx
 import { useState } from "react";
 import { Input, Textarea, Button } from "@heroui/react";
+
 import { auth } from "../../firebase/firebase"; // ✅ Use this
 
 export default function AddPostPage() {
@@ -11,6 +12,7 @@ export default function AddPostPage() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
       setImageFile(file);
     }
@@ -19,6 +21,7 @@ export default function AddPostPage() {
   const toBase64 = (file: File) =>
     new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
+
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = (error) => reject(error);
@@ -29,6 +32,7 @@ export default function AddPostPage() {
 
     try {
       const user = auth.currentUser;
+
       if (!user) throw new Error("Not logged in");
 
       const token = await user.getIdToken();
@@ -54,6 +58,7 @@ export default function AddPostPage() {
 
       if (!res.ok) {
         const errText = await res.text();
+
         throw new Error(errText || "Failed to post");
       }
 
@@ -83,7 +88,7 @@ export default function AddPostPage() {
       />
 
       <label className="block font-medium text-sm">Add Image</label>
-      <input type="file" accept="image/*" onChange={handleImageChange} />
+      <input accept="image/*" type="file" onChange={handleImageChange} />
 
       <Button color="primary" onClick={handleSubmit}>
         Post

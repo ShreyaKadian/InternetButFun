@@ -1,26 +1,9 @@
-import { Link } from "@heroui/link";
-import { Snippet } from "@heroui/snippet";
-import { Code } from "@heroui/code";
-import { button as buttonStyles } from "@heroui/theme";
-import { Navbar2 } from "@/components/navbar2";
-import { siteConfig } from "@/config/site";
-import { title, subtitle } from "@/components/primitives";
-import { GithubIcon } from "@/components/icons";
-import DefaultLayout from "@/layouts/default";
 import { useState, useRef, ChangeEvent, MouseEvent } from "react";
 import { useRouter } from "next/router";
-
-import { Avatar, AvatarGroup, AvatarIcon } from "@heroui/avatar";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@heroui/modal";
-
 import { Input } from "@heroui/react";
 import { Button } from "@heroui/react";
+
+import DefaultLayout from "@/layouts/default";
 
 export default function IndexPage() {
   const router = useRouter();
@@ -28,43 +11,57 @@ export default function IndexPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [username, setusername] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>(
-    "https://placehold.co/600x400?text=Click+to+Upload"
+    "https://placehold.co/600x400?text=Click+to+Upload",
   );
   const [likes, setLikes] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [usernameError, setUsernameError] = useState<string>("");
 
-  const categories = ["Youtube", "Memes", "Politics", "Film", "Music", "Pop Culture"];
+  const categories = [
+    "Youtube",
+    "Memes",
+    "Politics",
+    "Film",
+    "Music",
+    "Pop Culture",
+  ];
 
   const getAuthToken = async (): Promise<string | null> => {
     const { auth } = await import("../../firebase/firebase");
     const user = auth.currentUser;
+
     if (user) {
       return await user.getIdToken();
     }
+
     return null;
   };
 
   const bye = async () => {
     if (!username.trim()) {
       alert("Please enter a username");
+
       return;
     }
     if (!aboutyou.trim()) {
       alert("Please tell us about yourself");
+
       return;
     }
     if (likes.length === 0) {
       alert("Please select at least one interest");
+
       return;
     }
 
     setLoading(true);
     try {
       const token = await getAuthToken();
+
       if (!token) {
         alert("Please log in first");
         setLoading(false);
+
         return;
       }
 
@@ -89,10 +86,12 @@ export default function IndexPage() {
 
       if (response.ok) {
         const result = await response.json();
+
         alert("Profile created successfully!");
         router.push("/");
       } else {
         const error = await response.json();
+
         alert(`Error: ${error.detail}`);
       }
     } catch (error) {
@@ -118,8 +117,10 @@ export default function IndexPage() {
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0];
+
     if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
+
       reader.onload = (e: ProgressEvent<FileReader>) => {
         if (e.target?.result) {
           setImageUrl(e.target.result as string);
@@ -132,11 +133,13 @@ export default function IndexPage() {
   const checkUsernameAvailability = async (usernameToCheck: string) => {
     if (usernameToCheck.length < 3) {
       setUsernameError("Username must be at least 3 characters");
+
       return;
     }
 
     try {
       const token = await getAuthToken();
+
       if (!token) return;
 
       const response = await fetch(
@@ -145,11 +148,12 @@ export default function IndexPage() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
         const result = await response.json();
+
         if (!result.available) {
           setUsernameError("Username is already taken");
         } else {
@@ -179,38 +183,38 @@ export default function IndexPage() {
 
         <div className="p-8">
           <img
-            src={imageUrl}
             alt="Click to change"
+            className="w-96 h-72 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-black"
+            src={imageUrl}
             onClick={handleImageClick}
             onError={() =>
               setImageUrl("https://placehold.co/600x400?text=Click+to+Upload")
             }
-            className="w-96 h-72 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-black"
           />
 
           <input
             ref={fileInputRef}
-            type="file"
             accept="image/*"
-            onChange={handleFileChange}
             className="hidden"
+            type="file"
+            onChange={handleFileChange}
           />
         </div>
 
         <Input
           isClearable
           className="w-full"
+          errorMessage={usernameError}
+          isInvalid={!!usernameError}
           label="Username"
           placeholder="Choose a unique username"
-          variant="bordered"
           value={username}
+          variant="bordered"
+          onChange={(e) => handleUsernameChange(e.target.value)}
           onClear={() => {
             setusername("");
             setUsernameError("");
           }}
-          onChange={(e) => handleUsernameChange(e.target.value)}
-          errorMessage={usernameError}
-          isInvalid={!!usernameError}
         />
 
         <Input
@@ -218,10 +222,10 @@ export default function IndexPage() {
           className="w-full"
           label="About you"
           placeholder="Tell us about yourself"
-          variant="bordered"
           value={aboutyou}
-          onClear={() => setaboutyou("")}
+          variant="bordered"
           onChange={(e) => setaboutyou(e.target.value)}
+          onClear={() => setaboutyou("")}
         />
 
         <div className="w-full">
@@ -230,14 +234,14 @@ export default function IndexPage() {
             {categories.map((category) => (
               <Button
                 key={category}
-                size="sm"
-                variant={likes.includes(category) ? "solid" : "ghost"}
-                onClick={() => Addtolist(category)}
                 className={`transition-all duration-200 ${
                   likes.includes(category)
                     ? "bg-black text-white hover:bg-gray-900"
                     : "text-black border border-black hover:bg-black hover:text-white"
                 }`}
+                size="sm"
+                variant={likes.includes(category) ? "solid" : "ghost"}
+                onClick={() => Addtolist(category)}
               >
                 {category}
               </Button>
@@ -252,9 +256,9 @@ export default function IndexPage() {
 
         <Button
           className="w-full bg-black text-white hover:bg-gray-900"
-          onClick={bye}
-          isLoading={loading}
           disabled={loading || !!usernameError}
+          isLoading={loading}
+          onClick={bye}
         >
           {loading ? "Creating Profile..." : "Complete Profile"}
         </Button>

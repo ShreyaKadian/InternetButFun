@@ -1,9 +1,11 @@
+import React, { useEffect, useRef, useState } from "react";
+
+import { auth } from "../../firebase/firebase";
+
 import PostCard from "@/components/Postcard";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
-import React, { useEffect, useRef, useState } from "react";
 import { Navbar2 } from "@/components/navbar2";
-import { auth } from "../../firebase/firebase";
 import ErrorPage from "@/components/ErrorPage";
 
 interface Post {
@@ -43,12 +45,15 @@ export default function DocsPage() {
   const getAuthToken = async (): Promise<string | null> => {
     try {
       const user = auth.currentUser;
+
       if (user) {
         return await user.getIdToken();
       }
+
       return null;
     } catch (error) {
-      console.error('Error getting auth token:', error);
+      console.error("Error getting auth token:", error);
+
       return null;
     }
   };
@@ -61,28 +66,31 @@ export default function DocsPage() {
 
     try {
       const token = await getAuthToken();
+
       if (!token) {
-        setError('unauthorized');
+        setError("unauthorized");
         setLoading(false);
+
         return;
       }
 
-      const response = await fetch('http://localhost:8000/posts', {
-        method: 'GET',
+      const response = await fetch("http://localhost:8000/posts", {
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
         if (response.status === 404) {
-          setError('notFound');
+          setError("notFound");
         } else if (response.status >= 500) {
-          setError('serverError');
+          setError("serverError");
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
+
         return;
       }
 
@@ -98,8 +106,8 @@ export default function DocsPage() {
         setHasMore(false);
       }
     } catch (error) {
-      console.error('Error loading posts:', error);
-      setError('networkError');
+      console.error("Error loading posts:", error);
+      setError("networkError");
     } finally {
       setLoading(false);
     }
@@ -116,10 +124,11 @@ export default function DocsPage() {
           loadPosts(false);
         }
       },
-      { threshold: 1.0 }
+      { threshold: 1.0 },
     );
 
     const currentLoader = loaderRef.current;
+
     if (currentLoader) observer.observe(currentLoader);
 
     return () => {
@@ -130,25 +139,32 @@ export default function DocsPage() {
   const handleLike = async (postId: string) => {
     try {
       const token = await getAuthToken();
+
       if (!token) {
-        setError('unauthorized');
+        setError("unauthorized");
+
         return;
       }
 
       const post = posts.find((p) => p._id === postId);
+
       if (!post) {
-        setError('notFound');
+        setError("notFound");
+
         return;
       }
 
-      const endpoint = post.liked ? 'unlike' : 'like';
-      const response = await fetch(`http://localhost:8000/posts/${postId}/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const endpoint = post.liked ? "unlike" : "like";
+      const response = await fetch(
+        `http://localhost:8000/posts/${postId}/${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (response.ok) {
         setPosts((prevPosts) =>
@@ -159,40 +175,47 @@ export default function DocsPage() {
                   liked: !p.liked,
                   like_count: p.liked ? p.like_count - 1 : p.like_count + 1,
                 }
-              : p
-          )
+              : p,
+          ),
         );
       } else {
-        setError('serverError');
+        setError("serverError");
       }
     } catch (error) {
-      console.error('Error toggling like:', error);
-      setError('networkError');
+      console.error("Error toggling like:", error);
+      setError("networkError");
     }
   };
 
   const handleSave = async (postId: string) => {
     try {
       const token = await getAuthToken();
+
       if (!token) {
-        setError('unauthorized');
+        setError("unauthorized");
+
         return;
       }
 
       const post = posts.find((p) => p._id === postId);
+
       if (!post) {
-        setError('notFound');
+        setError("notFound");
+
         return;
       }
 
-      const endpoint = post.saved ? 'unsave' : 'save';
-      const response = await fetch(`http://localhost:8000/posts/${postId}/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const endpoint = post.saved ? "unsave" : "save";
+      const response = await fetch(
+        `http://localhost:8000/posts/${postId}/${endpoint}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         },
-      });
+      );
 
       if (response.ok) {
         setPosts((prevPosts) =>
@@ -203,43 +226,48 @@ export default function DocsPage() {
                   saved: !p.saved,
                   save_count: p.saved ? p.save_count - 1 : p.save_count + 1,
                 }
-              : p
-          )
+              : p,
+          ),
         );
       } else {
-        setError('serverError');
+        setError("serverError");
       }
     } catch (error) {
-      console.error('Error toggling save:', error);
-      setError('networkError');
+      console.error("Error toggling save:", error);
+      setError("networkError");
     }
   };
 
   const handleComment = async (postId: string, commentContent: string) => {
     try {
       const token = await getAuthToken();
+
       if (!token) {
-        setError('unauthorized');
+        setError("unauthorized");
+
         return;
       }
 
-      const response = await fetch(`http://localhost:8000/posts/${postId}/comment`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `http://localhost:8000/posts/${postId}/comment`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ content: commentContent }),
         },
-        body: JSON.stringify({ content: commentContent }),
-      });
+      );
 
       if (response.ok) {
         loadPosts(true);
       } else {
-        setError('serverError');
+        setError("serverError");
       }
     } catch (error) {
-      console.error('Error adding comment:', error);
-      setError('networkError');
+      console.error("Error adding comment:", error);
+      setError("networkError");
     }
   };
 
@@ -266,7 +294,7 @@ export default function DocsPage() {
   return (
     <DefaultLayout>
       <section className="flex flex-col w-[53rem] ml-8 gap-16 py-8 md:py-10">
-        <div className="text-center"></div>
+        <div className="text-center" />
 
         <div className="flex flex-col gap-6 w-full px-4">
           {posts.length === 0 && !loading ? (
@@ -277,21 +305,23 @@ export default function DocsPage() {
             posts.map((post) => (
               <PostCard
                 key={post._id}
-                id={post._id}
-                title={post.title}
-                content={post.content}
-                imageUrl={post.image_url}
-                username={post.username}
-                createdAt={post.created_at}
-                liked={post.liked}
-                saved={post.saved}
-                likeCount={post.like_count}
-                saveCount={post.save_count}
                 commentCount={post.comment_count}
+                content={post.content}
+                createdAt={post.created_at}
+                id={post._id}
+                imageUrl={post.image_url}
+                likeCount={post.like_count}
+                liked={post.liked}
+                saveCount={post.save_count}
+                saved={post.saved}
+                title={post.title}
                 userProfilePic={post.userProfilePic}
+                username={post.username}
+                onComment={(content: string) =>
+                  handleComment(post._id, content)
+                }
                 onLike={() => handleLike(post._id)}
                 onSave={() => handleSave(post._id)}
-                onComment={(content: string) => handleComment(post._id, content)}
               />
             ))
           )}

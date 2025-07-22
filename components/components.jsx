@@ -68,11 +68,21 @@ export default function PostCard({ title, tracks }) {
               </div>
             </div>
             <div className="flex w-full items-center justify-center">
-              <Button isIconOnly variant="light" radius="full"><RepeatOneIcon /></Button>
-              <Button isIconOnly variant="light" radius="full"><PreviousIcon /></Button>
-              <Button isIconOnly variant="light" radius="full"><PauseCircleIcon size={54} /></Button>
-              <Button isIconOnly variant="light" radius="full"><NextIcon /></Button>
-              <Button isIconOnly variant="light" radius="full"><ShuffleIcon /></Button>
+              <Button isIconOnly variant="light" radius="full">
+                <RepeatOneIcon />
+              </Button>
+              <Button isIconOnly variant="light" radius="full">
+                <PreviousIcon />
+              </Button>
+              <Button isIconOnly variant="light" radius="full">
+                <PauseCircleIcon size={54} />
+              </Button>
+              <Button isIconOnly variant="light" radius="full">
+                <NextIcon />
+              </Button>
+              <Button isIconOnly variant="light" radius="full">
+                <ShuffleIcon />
+              </Button>
             </div>
           </div>
         </div>

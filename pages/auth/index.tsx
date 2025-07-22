@@ -3,11 +3,13 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth } from "../../firebase/firebase";
 import { Input } from "@heroui/react";
 import { Button } from "@heroui/react";
-import DefaultLayout from "@/layouts/default";
 import { useRouter } from "next/router";
+
+import { auth } from "../../firebase/firebase";
+
+import DefaultLayout from "@/layouts/default";
 
 export default function Auth() {
   const router = useRouter();
@@ -26,8 +28,9 @@ export default function Auth() {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
-          password
+          password,
         );
+
         setMessage({ type: "success", text: "Account created!" });
 
         const idToken = await userCredential.user.getIdToken();
@@ -71,50 +74,50 @@ export default function Auth() {
         <Input
           isClearable
           className="w-full"
-          label="Email"
-          placeholder="Enter your email"
-          type="email"
-          variant="bordered"
-          value={email}
-          onClear={() => setEmail("")}
-          onChange={(e) => setEmail(e.target.value)}
           classNames={{
             base: "border border-black focus-within:border-pink-500",
             inputWrapper:
               "bg-transparent hover:bg-transparent focus-within:bg-transparent",
             input: "bg-transparent hover:bg-transparent focus:bg-transparent",
           }}
+          label="Email"
+          placeholder="Enter your email"
+          type="email"
+          value={email}
+          variant="bordered"
+          onChange={(e) => setEmail(e.target.value)}
+          onClear={() => setEmail("")}
         />
 
         <Input
           isClearable
           className="w-full"
-          label="Password"
-          placeholder="Enter your password"
-          type="password"
-          variant="bordered"
-          value={password}
-          onClear={() => setPassword("")}
-          onChange={(e) => setPassword(e.target.value)}
           classNames={{
             base: "border border-black focus-within:border-pink-500",
             inputWrapper:
               "bg-transparent hover:bg-transparent focus-within:bg-transparent",
             input: "bg-transparent hover:bg-transparent focus:bg-transparent",
           }}
+          label="Password"
+          placeholder="Enter your password"
+          type="password"
+          value={password}
+          variant="bordered"
+          onChange={(e) => setPassword(e.target.value)}
+          onClear={() => setPassword("")}
         />
 
         <Button
-          onClick={handleAuth}
           className="w-full bg-black text-white hover:bg-gray-900 transition-colors"
+          onClick={handleAuth}
         >
           {isSignUp ? "Sign Up" : "Log In"}
         </Button>
 
         <Button
+          className="text-sm text-black hover:text-pink-600"
           variant="light"
           onClick={() => setIsSignUp(!isSignUp)}
-          className="text-sm text-black hover:text-pink-600"
         >
           {isSignUp
             ? "Already have an account? Log In"
