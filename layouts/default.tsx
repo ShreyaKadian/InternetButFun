@@ -27,7 +27,7 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
           href="/"
         >
           <span className="font-bold text-[#88e7ba] text-[3.25rem] ml-[2.6rem] font-dancing">
-            InternetButFun
+            InternetButCum
           </span>
         </NextLink>
 

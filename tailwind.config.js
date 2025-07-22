@@ -12,7 +12,7 @@ const config = {
   theme: {
     extend: {
       colors: {
-        background: "#fde1c2", // override token
+        background: "black", // override token
         color : "#595540"
       },
 
