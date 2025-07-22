@@ -1,13 +1,16 @@
-import { Toaster } from "react-hot-toast"; // ✅ add this
+import { ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
 import NextLink from "next/link";
-
 import { Head } from "./head";
-
 import { Navbar } from "@/components/navbar";
 import { Navbar2 } from "@/components/navbar2";
 import { Cardside } from "@/components/cardside";
 
-export default function DefaultLayout({ children }) {
+interface DefaultLayoutProps {
+  children: ReactNode;
+}
+
+export default function DefaultLayout({ children }: DefaultLayoutProps) {
   return (
     <div className="relative min-h-screen w-full">
       <Head />
@@ -69,7 +72,7 @@ export default function DefaultLayout({ children }) {
         </div>
       </header>
 
-      {/* 👇 Here's where the toast system lives */}
+      {/* Toast system */}
       <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
 
       {/* Main content area */}
