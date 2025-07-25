@@ -1,4 +1,4 @@
-#!/home/shreya/Desktop/finalinternet/.venv/bin/python
+#!/home/shreya/Desktop/finalinternet/.venv/bin/python3
 # -*- coding: utf-8 -*-
 # Copyright 2025 Google LLC
 #
