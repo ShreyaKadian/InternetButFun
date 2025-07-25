@@ -72,11 +72,11 @@ export const Navbar = () => {
 
   return (
     <HeroUINavbar
-      className="fixed left-0 top-28 h-screen w-96 flex-col items-start justify-between p-4 z-40 font-Overpass"
+      className="fixed left-0 top-28 h-screen w-96 flex-col items-start justify-between p-4 z-40 font-Overpass "
       isBlurred={true}
     >
       <NavbarContent className="flex-col items-start gap-6">
-        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full ">
           {siteConfig.navItems.map((item) => {
             const Icon = item.icon;
             const isActive = router.asPath === item.href;

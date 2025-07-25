@@ -15,34 +15,33 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
     <div className="relative min-h-screen w-full">
       <Head />
 
-      {/* Fixed sidebars */}
       <Navbar />
       <Navbar2 />
       <Cardside />
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 h-20 bg-[#dff6da] border-b border-default-100 flex items-center w-full z-50">
+      <header className="fixed top-0 left-0 h-20 bg-[#dff6da] flex items-center w-full z-50">
         <NextLink
           className="flex items-center gap-0 h-20 w-[25rem] bg-[#FFFCE1]"
           href="/"
         >
           <span className="font-bold text-[#88e7ba] text-[3.25rem] ml-[2.6rem] font-dancing">
-            InternetButCum
+            InternetButFun
           </span>
-        </NextLink>
+        </NextLink>    
 
-        <div className="flex shadow-sm flex-column mt-3 gap-8 text-base bg-[#FFFCE1] ml-14 px-5 rounded-full py-1 h-8 text-[#595540] w-[25rem]">
-          <span className="border-r-2 border-grey pr-5">Fun</span>
-          <span className="border-r-2 pr-5">Wholesome</span>
-          <span>Sexy</span>
+        <div className="flex-1 flex justify-center items-center">
+          <div className="flex shadow-sm flex-column mt-3 gap-8 text-base bg-[#FFFCE1] px-5 rounded-full py-1 h-8 text-[#595540]">
+            <span className="border-r-2 border-grey pr-5">Fun</span>
+            <span className="border-r-2 pr-5">Wholesome</span>
+            <span>Vibe</span>
+          </div>
+
+          <div className="flex shadow-sm flex-column mt-3 text-base bg-[#FFFCE1] ml-[0.2rem] w-[8rem] px-5 rounded-full py-1 h-8 text-[#595540] text-center">
+            <span className="text-center">All In One</span>
+          </div>
         </div>
 
-        <div className="flex shadow-sm flex-column mt-3 text-base bg-[#FFFCE1] ml-0 w-[8rem] px-5 rounded-full py-1 h-8 text-[#595540] text-center">
-          <span className="text-center">Go to the</span>
-        </div>
-
-        {/* Social Buttons */}
-        <div className="flex gap-3 ml-32 mt-3">
+        <div className="flex gap-3 mr-[2.6rem] mt-3">
           <a
             className="bg-[#63d1c2] shadow-md text-[#FFFCE1] px-5 rounded-full py-1 h-8 w-28 text-center font-bold transition-all duration-300 hover:bg-[#50bfb1] hover:scale-105"
             href="https://www.instagram.com"
@@ -75,9 +74,11 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
       {/* Toast system */}
       <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
 
-      {/* Main content area */}
-      <main className="ml-96 mr-96 min-h-screen p-6 pt-20 pb-20">
-        {children}
+      {/* Main content area - centered based on the middle section */}
+      <main className="flex justify-center min-h-screen pt-20 pb-20">
+        <div className="w-full max-w-2xl px-6">
+          {children}
+        </div>
       </main>
     </div>
   );

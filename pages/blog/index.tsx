@@ -233,15 +233,15 @@ export default function UpdatesPage() {
   return (
     <DefaultLayout>
       <section className="flex flex-col items-center gap-6 py-8 md:py-10">
-        <h1 className={`${title()} mb-4 mt-7 text-center`}>Update</h1>
-        <div className="ml-10 flex flex-col gap-5 px-4 w-full items-center">
+        <h1 className={`${title()} mb-4 mt-7 text-center text-black`}>Update</h1>
+        <div className="ml-10 flex flex-col gap-5 px-4 w-full items-center ">
           {items.length === 0 && !loading ? (
             <div className="text-center py-8">
               <ErrorPage errorType="notFound" />
             </div>
           ) : (
             items.map((item) => (
-              <Card key={item._id} className="py-4 w-80">
+              <Card key={item._id} className="py-4 w-80 bg-white text-black">
                 <CardHeader className="relative pb-0 pt-2 px-4 flex-col items-start">
                   <div className="flex gap-3 items-center mt-2">
                     <Avatar
@@ -265,12 +265,12 @@ export default function UpdatesPage() {
                     </p>
                   </div>
                   <h4 className="font-bold text-large mt-1">{item.title}</h4>
-                  <small className="text-default-500 mt-1">
+                  <small className="mt-1 text-black">
                     {item.content}
                   </small>
                   <div className="absolute top-2 right-4 flex flex-col items-center gap-3">
                     <HeartIcon
-                      fill={item.liked ? "red" : "none"}
+                      fill={item.liked ? "black" : "none"}
                       height={35}
                       role="button"
                       style={{ cursor: "pointer" }}

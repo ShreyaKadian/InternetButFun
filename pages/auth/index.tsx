@@ -66,7 +66,7 @@ export default function Auth() {
 
   return (
     <DefaultLayout>
-      <div className="flex flex-col items-center gap-4 p-6 max-w-md mx-auto mt-20 rounded-xl bg-[#FFFCE1] shadow">
+      <div className="flex flex-col items-center gap-4 p-6 max-w-md mx-auto mt-20 rounded-xl bg-[#FFFCE1] shadow text-black">
         <h2 className="text-xl font-semibold">
           {isSignUp ? "Create an Account" : "Welcome Back"}
         </h2>
@@ -75,10 +75,12 @@ export default function Auth() {
           isClearable
           className="w-full"
           classNames={{
-            base: "border border-black focus-within:border-pink-500",
+            base: "border border-2   focus-within:border-black",
             inputWrapper:
-              "bg-transparent hover:bg-transparent focus-within:bg-transparent",
-            input: "bg-transparent hover:bg-transparent focus:bg-transparent",
+              "bg-transparent  focus-within:bg-transparent placeholder:text-black",
+            input: "bg-transparent hover:bg-transparent placeholder:text-black",
+            label: "text-black",
+
           }}
           label="Email"
           placeholder="Enter your email"
@@ -93,12 +95,15 @@ export default function Auth() {
           isClearable
           className="w-full"
           classNames={{
-            base: "border border-black focus-within:border-pink-500",
+            base: "border border-2 focus-within:border-black",
             inputWrapper:
-              "bg-transparent hover:bg-transparent focus-within:bg-transparent",
-            input: "bg-transparent hover:bg-transparent focus:bg-transparent",
+              "bg-transparent focus-within:bg-transparent",
+            input: "bg-transparent hover:bg-transparent placeholder:text-black",
+            label: "black", 
+
           }}
-          label="Password"
+                    label="Password"
+
           placeholder="Enter your password"
           type="password"
           value={password}

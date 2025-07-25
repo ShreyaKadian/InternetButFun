@@ -31,7 +31,8 @@ export default function PostCard({
   onComment,
   userProfilePic,
 }) {
-  const [showPostImage, setShowPostImage] = useState(false);
+  const [showPostImage, setShowPostImage] = useState(true); // Default to post image
+  const [imageError, setImageError] = useState(false);
 
   const [showTooltip, setShowTooltip] = useState({
     comment: false,
@@ -46,8 +47,8 @@ export default function PostCard({
     (safeContent.split(" ").length > wordLimit ? "..." : "");
 
   const handlePlusClick = () => {
-    if (imageUrl) {
-      setShowPostImage(!showPostImage);
+    if (userProfilePic) {
+      setShowPostImage((prev) => !prev);
     }
   };
 
@@ -64,44 +65,59 @@ export default function PostCard({
     }, 2000);
   };
 
+  // Determine which image to show
+  const getImageSource = () => {
+    if (showPostImage && imageUrl) {
+      return imageUrl;
+    }
+
+    if (userProfilePic && !imageError) {
+      return userProfilePic;
+    }
+
+    return "https://placehold.co/150x150?text=Profile";
+  };
+
+  const handleImageError = (e) => {
+    console.log("Image failed to load:", e.currentTarget.src);
+    setImageError(true);
+    e.currentTarget.src = "https://placehold.co/150x150?text=Profile";
+  };
+
   return (
-    <Card isBlurred className="bg-[#FFFCE1] w-2/3 font-sans shadow-xl">
-      <CardBody className="p-6">
+    <Card className="w-[30rem] font-sans shadow-xl bg-white text-black">
+      <CardBody className="p-4">
         <div className="flex flex-col md:flex-row gap-1 items-start">
           {/* Image Section */}
           <div className="flex-shrink-0 w-full md:w-44">
             <Image
               alt={showPostImage ? "Post image" : "User profile"}
               className="object-cover rounded-xl w-full h-48 md:h-40"
-              src={
-                showPostImage && imageUrl
-                  ? imageUrl
-                  : userProfilePic ||
-                    "https://heroui.com/images/album-cover.png"
-              }
+              src={getImageSource()}
+              onError={handleImageError}
             />
           </div>
 
           {/* Content Section */}
-          <div className="flex flex-col justify-between flex-1 min-w-0">
+          <div className="flex flex-col justify-between flex-1 min-w-0 pl-3">
             {/* Header */}
             <div className="flex justify-between items-start mb-2">
               <div className="flex flex-col gap-1 flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground/90 text-sm">
+                <h3 className="font-semibold text-black text-sm">
                   {username}
                 </h3>
-                <h1 className="text-lg font-medium leading-tight break-words">
+                <h1 className="text-lg font-medium leading-tight break-words text-black">
                   {title}
                 </h1>
-                <p className="text-sm text-foreground/80 break-words">
+                <p className="text-sm text-black break-words">
                   {limitedText}
                 </p>
               </div>
               <Button
                 isIconOnly
                 className={clsx(
-                  "text-default-900/60 data-[hover]:bg-foreground/10 ml-2 flex-shrink-0 transition-colors",
-                  liked ? "text-black" : "",
+                  "text-black data-[hover]:bg-black/10 ml-2 flex-shrink-0 transition-colors",
+                  liked ? "text-black" : ""
                 )}
                 radius="full"
                 variant="light"
@@ -115,14 +131,14 @@ export default function PostCard({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-1 mt-auto relative">
+            <div className="flex items-center gap-1 mt-auto relative mt-5">
               {/* Save */}
               <Button
                 isIconOnly
                 variant="light"
                 radius="full"
                 onClick={onSave}
-                className="flex-shrink-0"
+                className="flex-shrink-0 text-black"
               >
                 {saved ? <FullButton /> : <SaveButton />}
               </Button>
@@ -133,26 +149,26 @@ export default function PostCard({
                   isIconOnly
                   variant="light"
                   radius="full"
-                  className="flex-shrink-0"
+                  className="flex-shrink-0 text-black"
                   onClick={() => toggleTooltip("comment")}
                 >
                   <Comments />
                 </Button>
                 {showTooltip.comment && (
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-[#333] font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50 w-36 text-sm">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50 w-36 text-sm">
                     coming soon!💫
                   </div>
                 )}
               </div>
 
-              {/* Plus (Toggle Image) */}
+              {/* Plus (Toggle Profile/Post Image) */}
               <Button
                 isIconOnly
                 variant="light"
                 radius="full"
-                className="flex-shrink-0"
+                className="flex-shrink-0 text-black"
                 onClick={handlePlusClick}
-                disabled={!imageUrl}
+                disabled={!userProfilePic}
               >
                 <PLusbutton size={24} />
               </Button>
@@ -163,13 +179,13 @@ export default function PostCard({
                   isIconOnly
                   variant="light"
                   radius="full"
-                  className="flex-shrink-0"
+                  className="flex-shrink-0 text-black"
                   onClick={() => toggleTooltip("share")}
                 >
                   <ShareButton />
                 </Button>
                 {showTooltip.share && (
-                  <div className="absolute w-36 text-sm -top-10 left-1/2 -translate-x-1/2 bg-white text-[#333]  font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50">
+                  <div className="absolute w-36 text-sm -top-10 left-1/2 -translate-x-1/2 bg-white text-black font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50">
                     coming soon!💫
                   </div>
                 )}
@@ -181,13 +197,13 @@ export default function PostCard({
                   isIconOnly
                   variant="light"
                   radius="full"
-                  className="flex-shrink-0"
+                  className="flex-shrink-0 text-black"
                   onClick={() => toggleTooltip("more")}
                 >
                   <More />
                 </Button>
                 {showTooltip.more && (
-                  <div className="absolute w-36 text-sm -top-10 left-1/2 -translate-x-1/2 bg-white text-[#333] font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50 ">
+                  <div className="absolute w-36 text-sm -top-10 left-1/2 -translate-x-1/2 bg-white text-black font-medium px-4 py-2 rounded-xl shadow-lg border border-gray-200 z-50">
                     coming soon!💫
                   </div>
                 )}
@@ -195,10 +211,10 @@ export default function PostCard({
             </div>
 
             {/* Stats */}
-            <div className="flex items-center gap-4 mt-2 text-xs text-foreground/60">
+            <div className="flex items-center gap-4 mt-0 text-[0.7rem] text-black ml-1">
               <span>{likeCount} likes</span>
               <span>{saveCount} saves</span>
-              <span>{commentCount} comments</span>
+              {/* <span>{commentCount} comments</span> */}
             </div>
           </div>
         </div>

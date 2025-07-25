@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input, Textarea, Button } from "@heroui/react";
 
 import { auth } from "../../firebase/firebase";
+import DefaultLayout from "@/layouts/default";
 
 export default function AddUpdatesPage() {
   const [title, setTitle] = useState("");
@@ -72,46 +73,76 @@ export default function AddUpdatesPage() {
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto space-y-4">
-      <h2 className="text-2xl font-bold">Post Update</h2>
+    <DefaultLayout>
+<div className="flex flex-col items-center gap-4 p-6 max-w-md mx-auto mt-20 rounded-xl bg-[#FFFCE1] shadow text-black">
+  <h2 className="text-xl font-semibold">Post Update</h2>
 
-      <Input
-        isClearable
-        className="w-full"
-        label="Title"
-        placeholder="Enter your title"
-        type="text"
-        value={title}
-        variant="bordered"
-        onChange={(e) => setTitle(e.target.value)}
-        onClear={() => setTitle("")}
-      />
+  <Input
+    isClearable
+    className="w-full"
+    classNames={{
+      base: "border border-2 focus-within:border-black",
+      inputWrapper: "bg-white focus-within:bg-white",
+      input: "bg-white hover:bg-white placeholder:text-black",
+      label: "text-black",
+    }}
+    placeholder="Enter your title"
+    type="text"
+    value={title}
+    variant="bordered"
+    onChange={(e) => setTitle(e.target.value)}
+    onClear={() => setTitle("")}
+  />
 
-      <Textarea
-        className="max-w-xs"
-        label="Description"
-        labelPlacement="outside"
-        placeholder="Enter your description"
-        value={content}
-        variant="bordered"
-        onChange={(e) => setContent(e.target.value)}
-      />
+  <Textarea
+    isClearable
+    className="w-full"
+    classNames={{
+      base: "border border-2 focus-within:border-black",
+      inputWrapper: "bg-white focus-within:bg-white",
+      input: "bg-white hover:bg-white placeholder:text-black",
+      label: "text-black",
+    }}
+    placeholder="Enter your description"
+    value={content}
+    variant="bordered"
+    onChange={(e) => setContent(e.target.value)}
+    onClear={() => setContent("")}
+  />
 
-      <input accept="image/*" type="file" onChange={handleImageChange} />
+  <div className="w-full">
+    <label htmlFor="image-upload" className="block font-medium text-sm text-black mb-1">
+      Add Image
+    </label>
+    <input
+      id="image-upload"
+      accept="image/*"
+      type="file"
+      onChange={handleImageChange}
+      className="w-full text-sm text-black"
+    />
+  </div>
 
-      <Button color="primary" onClick={handleSubmit}>
-        Post
-      </Button>
+  <Button
+    className="w-full bg-black text-white hover:bg-gray-900 transition-colors"
+    onClick={handleSubmit}
+  >
+    Post
+  </Button>
 
-      {message && (
-        <div
-          className={`text-sm ${
-            message.startsWith("✅") ? "text-green-500" : "text-red-500"
-          }`}
-        >
-          {message}
-        </div>
-      )}
+  {message && (
+    <div
+      className={`text-sm text-center w-full ${
+        message.startsWith("✅") ? "text-green-600 font-medium" : "text-red-600"
+      }`}
+    >
+      {message}
     </div>
+  )}
+</div>
+    </DefaultLayout>
   );
 }
+
+
+

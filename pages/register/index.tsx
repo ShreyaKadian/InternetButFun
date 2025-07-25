@@ -176,7 +176,7 @@ export default function IndexPage() {
 
   return (
     <DefaultLayout>
-      <div className="flex flex-col items-center mt-20 gap-4 p-6 max-w-md mx-auto rounded-xl shadow bg-[#FFFCE1]">
+      <div className="flex flex-col items-center mt-20 gap-0 p-6 max-w-md mx-auto rounded-xl shadow bg-[#FFFCE1] text-black">
         <h2 className="text-xl font-semibold">
           {"Welcome! Let's set up your profile"}
         </h2>
@@ -185,7 +185,7 @@ export default function IndexPage() {
           <button
             type="button"
             onClick={handleImageClick}
-            className="w-96 h-72 rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-black"
+            className="w-96 h-72 rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-black bg-black"
           >
             <img
               alt="Click to change"
@@ -196,21 +196,29 @@ export default function IndexPage() {
               }
             />
           </button>
-          <input
+          <input 
             ref={fileInputRef}
             accept="image/*"
-            className="hidden"
+            className="hidden "
             type="file"
             onChange={handleFileChange}
           />
         </div>
 
+                  <p className="text-sm text-black mb-2 w-full ml-2">Enter some info:</p>
+
         <Input
           isClearable
           className="w-full"
+              classNames={{
+      base: "border border-2 focus-within:border-black",
+      inputWrapper: "bg-white focus-within:bg-white",
+      input: "bg-white hover:bg-white placeholder:text-black",
+      label: "text-black",
+    }}
+
           errorMessage={usernameError}
           isInvalid={!!usernameError}
-          label="Username"
           placeholder="Choose a unique username"
           value={username}
           variant="bordered"
@@ -223,8 +231,14 @@ export default function IndexPage() {
 
         <Input
           isClearable
+              classNames={{
+      base: "border border-2 focus-within:border-black",
+      inputWrapper: "bg-white focus-within:bg-white",
+      input: "bg-white hover:bg-white placeholder:text-black",
+      label: "text-black",
+    }}
+
           className="w-full"
-          label="About you"
           placeholder="Tell us about yourself"
           value={aboutyou}
           variant="bordered"
@@ -232,8 +246,8 @@ export default function IndexPage() {
           onClear={() => setaboutyou("")}
         />
 
-        <div className="w-full">
-          <p className="text-sm text-gray-600 mb-2">Select your interests:</p>
+        <div className="w-full mt-3">
+          <p className="text-sm text-black mb-2">Select your interests:</p>
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <Button

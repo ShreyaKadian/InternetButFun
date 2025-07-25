@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Input, Textarea, Button } from "@heroui/react";
+import DefaultLayout from "@/layouts/default";
+
 
 import { auth } from "../../firebase/firebase"; 
 export default function AddPostPage() {
@@ -70,44 +72,76 @@ export default function AddPostPage() {
   };
 
   return (
-    <div className="p-6 max-w-xl mx-auto space-y-4">
-      <h2 className="text-2xl font-bold">Create Post</h2>
 
-      <Input
-        label="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+    <DefaultLayout>  
+<div className="flex flex-col items-center gap-4 p-6 max-w-md mx-auto mt-20 rounded-xl bg-[#FFFCE1] shadow text-black">
+  <h2 className="text-xl font-semibold">Create Post</h2>
 
-      <Textarea
-        label="Content"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-      />
-
-<label htmlFor="image-upload" className="block font-medium text-sm">
-  Add Image
-</label>
-<input
-  id="image-upload"
-  accept="image/*"
-  type="file"
-  onChange={handleImageChange}
+<Input
+  isClearable
+  className="w-full"
+  classNames={{
+    base: "border border-2 focus-within:border-black",
+    inputWrapper: "bg-white focus-within:bg-white",
+    input: "bg-white hover:bg-white placeholder:text-black",
+    label: "text-black",
+  }}
+  placeholder="Enter a title"
+  type="text"
+  value={title}
+  variant="bordered"
+  onChange={(e) => setTitle(e.target.value)}
+  onClear={() => setTitle("")}
 />
 
-      <Button color="primary" onClick={handleSubmit}>
-        Post
-      </Button>
+<Textarea
+  isClearable
+  className="w-full"
+  classNames={{
+    base: "border border-2 focus-within:border-black",
+    inputWrapper: "bg-white focus-within:bg-white",
+    input: "bg-white hover:bg-white placeholder:text-black",
+    label: "text-black",
+  }}
+  placeholder="Write your post here..."
+  value={content}
+  variant="bordered"
+  onChange={(e) => setContent(e.target.value)}
+  onClear={() => setContent("")}
+/>
 
-      {message && (
-        <div
-          className={`text-sm ${
-            message.startsWith("✅") ? "text-green-500" : "text-red-500"
-          }`}
-        >
-          {message}
-        </div>
-      )}
+  <div className="w-full">
+    <label htmlFor="image-upload" className="block font-medium text-sm text-black mb-1">
+      Add Image
+    </label>
+    <input
+      id="image-upload"
+      accept="image/*"
+      type="file"
+      onChange={handleImageChange}
+      className="w-full text-sm text-black"
+    />
+  </div>
+
+  <Button
+    className="w-full bg-black text-white hover:bg-gray transition-colors"
+    onClick={handleSubmit}
+  >
+    Post
+  </Button>
+
+  {message && (
+    <div
+      className={`text-sm text-center w-full ${
+        message.startsWith("✅") ? "text-green-600 font-medium" : "text-red-600"
+      }`}
+    >
+      {message}
     </div>
+  )}
+</div>
+
+    </DefaultLayout>
+  
   );
 }

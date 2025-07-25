@@ -282,7 +282,7 @@ export default function DocsPage() {
       <DefaultLayout>
         <section className="flex flex-col items-center gap-6 py-8 md:py-10">
           <div className="text-center">
-            <h1 className={title()}>Docs</h1>
+<h1 className={`${title()} text-black mt-12`}>News</h1>
           </div>
           <ErrorPage errorType={error} />
         </section>
@@ -293,10 +293,16 @@ export default function DocsPage() {
 
   return (
     <DefaultLayout>
-      <section className="flex flex-col w-[53rem] ml-8 gap-16 py-8 md:py-10">
-        <div className="text-center" />
+      <div>
 
-        <div className="flex flex-col gap-6 w-full px-4">
+      </div>
+      <section className="flex flex-col w-[53rem] ml-8 gap-6 py-8 md:py-10 ">
+
+                                  <h1 className={`${title()} text-black ml-32 mt-4`}>Posts</h1>
+
+
+        <div className="flex flex-col gap-6 w-full px-4 mt-2">
+          
           {posts.length === 0 && !loading ? (
             <div className="text-center py-8">
               <ErrorPage errorType="notFound" />

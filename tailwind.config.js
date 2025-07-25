@@ -1,6 +1,7 @@
 import { heroui } from "@heroui/theme";
 import { color } from "framer-motion";
 
+
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: [
@@ -12,7 +13,7 @@ const config = {
   theme: {
     extend: {
       colors: {
-        background: "black", // override token
+        background: "#fde1c2", // override token
         color : "#595540"
       },
 
@@ -34,7 +35,6 @@ const config = {
       },
     },
   },
-  darkMode: "class",
   plugins: [heroui()],
 };
 

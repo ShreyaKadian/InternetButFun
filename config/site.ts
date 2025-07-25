@@ -1,4 +1,5 @@
 import {
+  PLusbutton,
   HomeIcon,
   ChatBubbleIcon,
   NewspaperIcon,
@@ -47,12 +48,28 @@ export const siteConfig = {
       icon: DocumentTextIcon,
       bgColor: "#cfedd2",
     },
-    {
+        {
+      label: "Add Post",
+      href: "/add_post",
+      icon: PLusbutton,
+      bgColor: "#fdd2b7",
+    },
+        {
+      label: "Add Updates",
+      href: "/add_updates",
+      icon: ChatBubbleIcon,
+      bgColor: "#cfedd2",
+    },
+
+        {
       label: "Auth",
       href: "/auth",
       icon: UserIcon,
-      bgColor: "#fdd2b7",
+      bgColor: "#cfedd2",
     },
+
+
+
   ],
   navMenuItems: [
     {

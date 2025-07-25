@@ -195,7 +195,7 @@ export default function NewsPage() {
     <DefaultLayout>
       <section className="flex flex-col gap-10 py-8 md:py-10">
         <div className="ml-52 mt-4">
-          <h1 className={title()}>News</h1>
+<h1 className={`${title()} text-black`}>News</h1>
         </div>
         <div className="flex flex-col gap-6 ml-16 w-full px-4">
           {items.length === 0 && !loading ? (
@@ -204,21 +204,21 @@ export default function NewsPage() {
             </div>
           ) : (
             items.map((item) => (
-              <Card key={item._id} className="px-2 py-4 w-[27rem] h-auto">
+              <Card key={item._id} className="px-2 py-4 w-[27rem] h-auto bg-white">
                 <CardHeader className="pb-0 pt-2 px-4 flex-col items-start relative">
                   <div className="absolute top-2 right-2">
                     <Button
-                      className="p-1"
+                      className="p-1 bg-black"
                       onClick={() => toggleExpand(item._id)}
                     >
-                      <PLusbutton height={20} width={20} />
+                      <PLusbutton className="bg-black" height={20} width={20} />
                     </Button>
                   </div>
-                  <h4 className="font-semibold text-large mb-1">
+                  <h4 className="font-semibold text-large mb-1 text-black">
                     {item.title}
                   </h4>
-                  <small className="text-default-500">{item.author}</small>
-                  <small className="text-default-500">
+                  <small className="text-black">{item.author}</small>
+                  <small className="text-black">
                     {getHoursAgo(item.date)}
                   </small>
                 </CardHeader>
@@ -236,7 +236,7 @@ export default function NewsPage() {
                     }}
                   />
                   {expandedItem === item._id && (
-                    <p className="mt-2 text-small">{item.content}</p>
+                    <p className="mt-2 text-small text-black">{item.content}</p>
                   )}
                 </CardBody>
               </Card>
