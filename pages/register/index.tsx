@@ -40,17 +40,14 @@ export default function IndexPage() {
   const bye = async () => {
     if (!username.trim()) {
       alert("Please enter a username");
-
       return;
     }
     if (!aboutyou.trim()) {
       alert("Please tell us about yourself");
-
       return;
     }
     if (likes.length === 0) {
       alert("Please select at least one interest");
-
       return;
     }
 
@@ -61,10 +58,11 @@ export default function IndexPage() {
       if (!token) {
         alert("Please log in first");
         setLoading(false);
-
         return;
       }
 
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      console.log("API URL:", API_URL); // Debug log
       const profileData = {
         username: username.trim(),
         aboutyou: aboutyou.trim(),
@@ -75,7 +73,7 @@ export default function IndexPage() {
             : null,
       };
 
-      const response = await fetch("http://localhost:8000/complete-profile", {
+      const response = await fetch(`${API_URL}/complete-profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -86,12 +84,10 @@ export default function IndexPage() {
 
       if (response.ok) {
         const result = await response.json();
-
         alert("Profile created successfully!");
         router.push("/");
       } else {
         const error = await response.json();
-
         alert(`Error: ${error.detail}`);
       }
     } catch (error) {
@@ -133,7 +129,6 @@ export default function IndexPage() {
   const checkUsernameAvailability = async (usernameToCheck: string) => {
     if (usernameToCheck.length < 3) {
       setUsernameError("Username must be at least 3 characters");
-
       return;
     }
 
@@ -142,8 +137,9 @@ export default function IndexPage() {
 
       if (!token) return;
 
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/check-username/${usernameToCheck}`,
+        `${API_URL}/check-username/${usernameToCheck}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -199,24 +195,23 @@ export default function IndexPage() {
           <input 
             ref={fileInputRef}
             accept="image/*"
-            className="hidden "
+            className="hidden"
             type="file"
             onChange={handleFileChange}
           />
         </div>
 
-                  <p className="text-sm text-black mb-2 w-full ml-2">Enter some info:</p>
+        <p className="text-sm text-black mb-2 w-full ml-2">Enter some info:</p>
 
         <Input
           isClearable
           className="w-full"
-              classNames={{
-      base: "border border-2 focus-within:border-black",
-      inputWrapper: "bg-white focus-within:bg-white",
-      input: "bg-white hover:bg-white placeholder:text-black",
-      label: "text-black",
-    }}
-
+          classNames={{
+            base: "border border-2 focus-within:border-black",
+            inputWrapper: "bg-white focus-within:bg-white",
+            input: "bg-white hover:bg-white placeholder:text-black",
+            label: "text-black",
+          }}
           errorMessage={usernameError}
           isInvalid={!!usernameError}
           placeholder="Choose a unique username"
@@ -231,13 +226,12 @@ export default function IndexPage() {
 
         <Input
           isClearable
-              classNames={{
-      base: "border border-2 focus-within:border-black",
-      inputWrapper: "bg-white focus-within:bg-white",
-      input: "bg-white hover:bg-white placeholder:text-black",
-      label: "text-black",
-    }}
-
+          classNames={{
+            base: "border border-2 focus-within:border-black",
+            inputWrapper: "bg-white focus-within:bg-white",
+            input: "bg-white hover:bg-white placeholder:text-black",
+            label: "text-black",
+          }}
           className="w-full"
           placeholder="Tell us about yourself"
           value={aboutyou}

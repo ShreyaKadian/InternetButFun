@@ -35,7 +35,9 @@ export default function Auth() {
 
         const idToken = await userCredential.user.getIdToken();
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Auth`, {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        console.log("API URL:", API_URL); // Debug log
+        const response = await fetch(`${API_URL}/Auth`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${idToken}`,
@@ -44,7 +46,8 @@ export default function Auth() {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to register user in database");
+          const error = await response.json();
+          throw new Error(error.detail || "Failed to register user in database");
         }
 
         router.push("/register");
@@ -75,12 +78,10 @@ export default function Auth() {
           isClearable
           className="w-full"
           classNames={{
-            base: "border border-2   focus-within:border-black",
-            inputWrapper:
-              "bg-transparent  focus-within:bg-transparent placeholder:text-black",
+            base: "border border-2 focus-within:border-black",
+            inputWrapper: "bg-transparent focus-within:bg-transparent placeholder:text-black",
             input: "bg-transparent hover:bg-transparent placeholder:text-black",
             label: "text-black",
-
           }}
           label="Email"
           placeholder="Enter your email"
@@ -96,14 +97,11 @@ export default function Auth() {
           className="w-full"
           classNames={{
             base: "border border-2 focus-within:border-black",
-            inputWrapper:
-              "bg-transparent focus-within:bg-transparent",
+            inputWrapper: "bg-transparent focus-within:bg-transparent",
             input: "bg-transparent hover:bg-transparent placeholder:text-black",
-            label: "black", 
-
+            label: "black",
           }}
-                    label="Password"
-
+          label="Password"
           placeholder="Enter your password"
           type="password"
           value={password}
