@@ -1,57 +1,48 @@
-import { title } from "@/components/primitives";
-import DefaultLayout from "@/layouts/default";
+"use client";
 
-export default function DocsPage() {
+import { Card, CardBody } from "@heroui/react";
+import { motion } from "framer-motion";
+
+export default function AboutPage() {
   return (
-    <DefaultLayout>
-      <section className="flex flex-col md:py-10">
-        <h1 className={`${title()} text-black text-center mt-5`}>About</h1>
-
-        <p className="text-black text-2xl mt-12">
-          You go on Instagram to message a friend... you are drawn into reels. <br /><br />
-          You go on Twitter to get the news... you see the most insufferable people fighting about politics. <br /><br />
-          You try Reddit... yeah I don't think I have to say anything about Reddit. <br /><br />
-          YouTube used to be fun... now it's all stupid BS designed to keep you watching for as long as possible (oh and also steal all your data ❤️). <br /><br />
-          Now don't get me wrong — social media isn't all bad. But no one can deny the goal of these companies isn't to connect or entertain us — it's to keep people on the app as long as possible to show us as many ads as possible (and also steal and sell our data to give us even better ads ❤️). <br /><br />
-          And the worst part is: to do this, they use every tactic possible, no matter how harmful or evil. They play on people's emotions — showing content designed to make you angry, scared, or sad just so you'll react. A lot of times after using social media, you don't leave in a good mood... and then to feel better, what do you do? Yep, more social media. <br /><br />
-          It's literally forming echo chambers that are radicalizing people like crazy. <br /><br />
-          The newer apps like TikTok are designed to addict people. People my age spend 8–9 hours a day on social media — and like, do what you want with your life, but a lot of people don't control their time... their phone does. <br /><br />
-          But it wasn't always like this. And it doesn't have to be like this. InternetButFun is a project built to capture the best parts of the internet: the community and fun, without any of the big tech nonsense. <br /><br />
-          Here's why we're better:
-        </p>
-
-        <ul className="list-decimal pl-5 mt-10 text-black text-2xl space-y-2">
-          <li>We don't use crazy notifications or algorithm tactics to keep you in. You're in control here.</li>
-          <li>No angry or depressing news here (you're allowed to make fun of it, of course), but the world is depressing enough already — we only give you wholesome and funny news. Go to Twitter for the depressing stuff.</li>
-          <li>No censorship — the only rule is don't be a jerk.</li>
-          <li>No ads.</li>
-          <li>I know it's a crazy concept, but we will not sell your data for profit.</li>
-          <li>No external agenda — politics or otherwise.</li>
-        </ul>
-
-        <p className="text-black text-2xl mt-10 font-bold">
-          So join us and I promise it'll be fun. Some of our features:
-        </p>
-
-        <ul className="list-decimal pl-5 mt-10 text-black text-2xl space-y-2">
-          <li>Posts to share your thoughts.</li>
-          <li>News tab with specially curated news to make you laugh or just say "W".</li>
-          <li>
-            Updates tab to just tell us how life has been going — good or bad. Post if you did well in a test, post if you stepped on dog poop.
-          </li>
-          <li>Global chat room just to hang out — something that's missing from every website at this point.</li>
-          <li>
-            Super personalized profile page instead of the generic ones we get today. Tell us your mood, your 5 favorite things, your favorite songs, your interests — anything you want. Not as customizable as MySpace yet, but we're getting there.
-          </li>
-        </ul>
-
-        <p className="text-black text-2xl mt-8">
-          We're still a work in progress and any sort of support is highly appreciated — the website is coded by one stupid developer only (me). <br /><br />
-          Feel free to mail for any queries: <br />
-          internetbutfun@gmail.com <br />
-          shreyakadian124@gmail.com
-        </p>
-      </section>
-    </DefaultLayout>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white text-black p-4">
+      <Card className="w-full max-w-2xl">
+        <CardBody>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="space-y-4"
+          >
+            <h1 className="text-3xl font-bold">About InternetButFun</h1>
+            <p>
+              Social media websites today like Twitter, Instagram, and Reddit are depressing,
+              annoying, boring, and littered with ads. InternetButFun is the single solution for
+              the decay of the internet.
+            </p>
+            <p>
+              We have a news page with funny and uplifting news, an updates page to share if you
+              got 90% in your test or stepped on poop, a posts page, general chat, and a very
+              editable profile page that can be your own corner on the internet.
+            </p>
+            <p>
+              This platform isn&apos;t run by greedy megacorps. We don&apos;t care about your
+              data. We don&apos;t want your time. We don&apos;t want to be addictive. We want to
+              be there when you need the internet to be fun.
+            </p>
+            <p>
+              There&apos;s no feed. You choose what you want to see. You go to the news page for
+              good news. You go to the posts page to scroll through all user posts. You go to
+              general chat to talk to whoever is online. You go to profiles to explore people.
+              And you go to your profile to set up your identity and write whatever you want.
+            </p>
+            <p>
+              This is your internet. Let&apos;s make it fun again. Let&apos;s make it weird again.
+              Let&apos;s make it feel again.
+            </p>
+          </motion.div>
+        </CardBody>
+      </Card>
+    </div>
   );
 }
