@@ -20,6 +20,11 @@ class ProfileData(BaseModel):
     likes: List[str]
     imageUrl: Optional[str] = None
 
+@app.get("/ping")
+def ping():
+    return {"message": "pong"}
+
+
 @app.post("/Auth")
 async def register_user(user=Depends(get_current_user)):
     try:
