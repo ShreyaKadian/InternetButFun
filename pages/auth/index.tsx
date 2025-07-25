@@ -35,7 +35,7 @@ export default function Auth() {
 
         const idToken = await userCredential.user.getIdToken();
 
-        const response = await fetch("http://localhost:8000/Auth", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Auth`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${idToken}`,

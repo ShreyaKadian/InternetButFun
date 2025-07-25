@@ -143,7 +143,7 @@ export default function IndexPage() {
       if (!token) return;
 
       const response = await fetch(
-        `http://localhost:8000/check-username/${usernameToCheck}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/check-username/${usernameToCheck}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
