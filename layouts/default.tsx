@@ -71,10 +71,8 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
         </div>
       </header>
 
-      {/* Toast system */}
       <Toaster position="bottom-center" toastOptions={{ duration: 2000 }} />
 
-      {/* Main content area - centered based on the middle section */}
       <main className="flex justify-center min-h-screen pt-20 pb-20">
         <div className="w-full max-w-2xl px-6">
           {children}

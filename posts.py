@@ -7,7 +7,6 @@ from app import get_current_user, db
 
 router = APIRouter()
 
-# Pydantic Schemas
 class PostModel(BaseModel):
     title: str
     content: str
@@ -16,7 +15,6 @@ class PostModel(BaseModel):
 class CommentModel(BaseModel):
     content: str
 
-# Helper function to get user profile data
 async def get_user_profile(firebase_uid: str):
     """Get user profile including username"""
     user_data = await db.Users.find_one({"firebase_uid": firebase_uid})
@@ -24,12 +22,10 @@ async def get_user_profile(firebase_uid: str):
         raise HTTPException(status_code=404, detail="User profile not found")
     return user_data
 
-# --- POST CRUD ---
 
 @router.post("/posts")
 async def create_post(post: PostModel, user=Depends(get_current_user)):
     try:
-        # Get user profile to get proper username
         user_profile = await get_user_profile(user["uid"])
         username = user_profile.get("username", user["email"])
         
@@ -115,7 +111,6 @@ async def delete_post(post_id: str, user=Depends(get_current_user)):
         if not ObjectId.is_valid(post_id):
             raise HTTPException(status_code=400, detail="Invalid post ID")
             
-        # Check if user owns the post
         post = await db.Posts.find_one({"_id": ObjectId(post_id)})
         if not post:
             raise HTTPException(status_code=404, detail="Post not found")
@@ -123,10 +118,8 @@ async def delete_post(post_id: str, user=Depends(get_current_user)):
         if post["user_id"] != user["uid"]:
             raise HTTPException(status_code=403, detail="You can only delete your own posts")
             
-        # Delete the post
         await db.Posts.delete_one({"_id": ObjectId(post_id)})
         
-        # Remove from users' liked_posts and saved_posts
         await db.Users.update_many(
             {},
             {"$pull": {"liked_posts": ObjectId(post_id), "saved_posts": ObjectId(post_id)}}
@@ -139,7 +132,6 @@ async def delete_post(post_id: str, user=Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
 
-# --- INTERACTIONS ---
 
 @router.post("/posts/{post_id}/like")
 async def like_post(post_id: str, user=Depends(get_current_user)):
@@ -147,18 +139,15 @@ async def like_post(post_id: str, user=Depends(get_current_user)):
         if not ObjectId.is_valid(post_id):
             raise HTTPException(status_code=400, detail="Invalid post ID")
             
-        # Check if post exists
         post = await db.Posts.find_one({"_id": ObjectId(post_id)})
         if not post:
             raise HTTPException(status_code=404, detail="Post not found")
             
-        # Add like to post
         await db.Posts.update_one(
             {"_id": ObjectId(post_id)},
             {"$addToSet": {"likes": user["uid"]}}
         )
         
-        # Add to user's liked posts
         await db.Users.update_one(
             {"firebase_uid": user["uid"]},
             {"$addToSet": {"liked_posts": ObjectId(post_id)}}
@@ -200,7 +189,6 @@ async def save_post(post_id: str, user=Depends(get_current_user)):
         if not ObjectId.is_valid(post_id):
             raise HTTPException(status_code=400, detail="Invalid post ID")
             
-        # Check if post exists
         post = await db.Posts.find_one({"_id": ObjectId(post_id)})
         if not post:
             raise HTTPException(status_code=404, detail="Post not found")
@@ -251,17 +239,15 @@ async def comment_post(post_id: str, comment: CommentModel, user=Depends(get_cur
         if not ObjectId.is_valid(post_id):
             raise HTTPException(status_code=400, detail="Invalid post ID")
             
-        # Check if post exists
         post = await db.Posts.find_one({"_id": ObjectId(post_id)})
         if not post:
             raise HTTPException(status_code=404, detail="Post not found")
             
-        # Get user profile for proper username
         user_profile = await get_user_profile(user["uid"])
         username = user_profile.get("username", user["email"])
         
         comment_data = {
-            "comment_id": str(ObjectId()),  # Generate unique comment ID
+            "comment_id": str(ObjectId()),  
             "user_id": user["uid"],
             "username": username,
             "content": comment.content,
@@ -292,7 +278,6 @@ async def get_post_comments(post_id: str, user=Depends(get_current_user)):
             
         comments = post.get("comments", [])
         
-        # Sort comments by timestamp (newest first)
         comments.sort(key=lambda x: x.get("timestamp", datetime.min), reverse=True)
         
         return {"comments": comments}
@@ -302,7 +287,6 @@ async def get_post_comments(post_id: str, user=Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch comments: {str(e)}")
 
-# --- USER'S ACTIVITY ---
 
 @router.get("/my-liked-posts")
 async def get_my_liked_posts(user=Depends(get_current_user)):
@@ -320,7 +304,7 @@ async def get_my_liked_posts(user=Depends(get_current_user)):
         
         for post in posts:
             post["_id"] = str(post["_id"])
-            post["liked"] = True  # Obviously true since these are liked posts
+            post["liked"] = True 
             post["saved"] = user["uid"] in post.get("saves", [])
             post["like_count"] = len(post.get("likes", []))
             post["save_count"] = len(post.get("saves", []))

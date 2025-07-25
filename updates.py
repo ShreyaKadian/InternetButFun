@@ -7,7 +7,6 @@ from app import get_current_user, db
 
 router = APIRouter()
 
-# Pydantic Schemas
 class UpdateModel(BaseModel):
     title: str
     content: str
@@ -16,16 +15,14 @@ class UpdateModel(BaseModel):
 class CommentModel(BaseModel):
     content: str
 
-# Helper function to get user profile data
 async def get_user_profile(firebase_uid: str):
     user_data = await db.Users.find_one({"firebase_uid": firebase_uid})
     if not user_data:
         raise HTTPException(status_code=404, detail="User profile not found")
     return user_data
 
-# --- UPDATES CRUD ---
 
-@router.post("/add_updates")  # fixed route to match frontend
+@router.post("/add_updates")  
 async def create_update(update: UpdateModel, user=Depends(get_current_user)):
     try:
         user_profile = await get_user_profile(user["uid"])
@@ -135,7 +132,6 @@ async def delete_update(update_id: str, user=Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete update: {str(e)}")
 
-# --- INTERACTIONS ---
 
 @router.post("/updates/{update_id}/like")
 async def like_update(update_id: str, user=Depends(get_current_user)):
@@ -290,7 +286,6 @@ async def get_update_comments(update_id: str, user=Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch comments: {str(e)}")
 
-# --- USER'S ACTIVITY ---
 
 @router.get("/my-liked-updates")
 async def get_my_liked_updates(user=Depends(get_current_user)):

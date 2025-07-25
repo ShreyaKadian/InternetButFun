@@ -1,11 +1,10 @@
 import * as React from "react";
 
-// Define the IconSvgProps interface
 interface IconSvgProps {
   size?: number;
   width?: number;
   height?: number;
-  [key: string]: any; // For additional props
+  [key: string]: any;
 }
 
 export const Logo: React.FC<IconSvgProps> = ({

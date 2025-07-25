@@ -6,16 +6,14 @@ from app import app, get_current_user, db
 from posts import router as post_router
 from chat import create_chat_router
 from updates import router as update_router
-from profilepage import router as profile_router  # Add this line
-from news import router as news_router  # Add this import
-app.include_router(news_router)  # Add this line
-# Include routers
+from profilepage import router as profile_router  
+from news import router as news_router 
+app.include_router(news_router)  
 app.include_router(post_router)
 app.include_router(create_chat_router(db))
 app.include_router(update_router)
-app.include_router(profile_router)  # Add this line
+app.include_router(profile_router)  
 
-# Pydantic models
 class ProfileData(BaseModel):
     username: str
     aboutyou: str

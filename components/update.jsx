@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardBody, Image } from "@heroui/react";
-import { PLusbutton } from "./icons"; // assume you move your icons here
+import { PLusbutton } from "./icons"; 
 
 export default function App() {
   return (

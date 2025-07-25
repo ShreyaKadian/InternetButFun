@@ -7,7 +7,6 @@ import { title } from "@/components/primitives";
 import { PLusbutton } from "@/components/icons";
 import ErrorPage from "@/components/ErrorPage";
 
-// Extend @heroui/react types to fix onError prop for Image
 declare module "@heroui/react" {
   interface ImageProps {
     onError?: (event: React.SyntheticEvent<HTMLImageElement>) => void;
@@ -33,16 +32,13 @@ export default function NewsPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  // Function to get Firebase auth token
   const getAuthToken = async (): Promise<string | null> => {
     try {
       const user = auth.currentUser;
 
       if (user) {
-        const token = await user.getIdToken(true); // Force refresh
-
-        console.log("Auth token:", token); // Debug log
-
+        const token = await user.getIdToken(true); 
+        console.log("Auth token:", token); 
         return token;
       }
       console.log("No user logged in");
@@ -55,7 +51,6 @@ export default function NewsPage() {
     }
   };
 
-  // Fetch news from backend
   const fetchNews = async (isInitial: boolean = false) => {
     if (loading || (!hasMore && !isInitial)) return;
 
@@ -99,8 +94,7 @@ export default function NewsPage() {
 
       const newItems: Item[] = await response.json();
 
-      console.log("Fetched items:", newItems); // Debug log
-
+      console.log("Fetched items:", newItems); 
       if (isInitial) {
         setItems(newItems);
       } else {
@@ -124,7 +118,6 @@ export default function NewsPage() {
     }
   };
 
-  // Load news on mount and when page changes
   useEffect(() => {
     fetchNews(true);
   }, []);
@@ -135,7 +128,6 @@ export default function NewsPage() {
     }
   }, [page]);
 
-  // Set up IntersectionObserver for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -157,7 +149,6 @@ export default function NewsPage() {
     };
   }, [hasMore, loading]);
 
-  // Handle refresh
   const handleRefresh = () => {
     setPage(1);
     setHasMore(true);

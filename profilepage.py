@@ -6,7 +6,6 @@ from app import get_current_user, db
 
 router = APIRouter()
 
-# Pydantic Schemas
 class SocialLinks(BaseModel):
     spotify: Optional[str] = ""
     letterboxd: Optional[str] = ""
@@ -39,14 +38,11 @@ async def get_user_profile_by_username(username: str, user=Depends(get_current_u
         if not user_data:
             raise HTTPException(status_code=404, detail="User not found")
         
-        # Determine if the logged-in user can edit this profile
         can_edit = user_data.get("firebase_uid") == user["uid"] if user else False
         
-        # Remove sensitive fields
         user_data.pop("_id", None)
         user_data.pop("firebase_uid", None)
         
-        # Add canEdit flag
         user_data["canEdit"] = can_edit
         
         return user_data

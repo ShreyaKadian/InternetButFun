@@ -1,6 +1,5 @@
 import { Card, CardHeader, CardBody, Image } from "@heroui/react";
-import { PLusbutton } from "./icons"; // assume you move your icons here
-
+import { PLusbutton } from "./icons"; 
 export default function App() {
   return (
     <Card className="py-4 max-w-[1000px] min-h-[320px] ">

@@ -14,7 +14,6 @@ export const Navbar2 = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const router = useRouter();
 
-  // Get Firebase token
   const getToken = async () => {
     const user = auth.currentUser;
     if (user) {
@@ -29,7 +28,6 @@ export const Navbar2 = () => {
     return null;
   };
 
-  // Fetch current user's profile data to get their username
   const fetchCurrentUserProfile = async (user) => {
     try {
       const token = await getToken();
@@ -38,7 +36,6 @@ export const Navbar2 = () => {
         return;
       }
 
-      // Check Auth endpoint to see if user is registered and get basic info
       const response = await fetch("http://localhost:8000/Auth", {
         method: "POST",
         headers: { 
@@ -51,8 +48,6 @@ export const Navbar2 = () => {
         const data = await response.json();
         console.log("Auth endpoint response:", data);
         
-        // The Auth endpoint doesn't return username, but we know the user exists
-        // We'll get the username when they click the profile button
         setUserProfile(data);
       } else {
         console.error("Failed to fetch user profile");
@@ -62,7 +57,6 @@ export const Navbar2 = () => {
     }
   };
 
-  // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       console.log("Auth state changed in Navbar2:", user ? `User: ${user.email}` : "No user");
@@ -82,7 +76,6 @@ export const Navbar2 = () => {
 
   const handleItemClick = async (href, isProfile = false) => {
     setClickedItem(href);
-    // Reset click effect after 300ms for visual feedback
     setTimeout(() => setClickedItem(null), 300);
 
     if (isProfile) {
@@ -103,7 +96,6 @@ export const Navbar2 = () => {
         return;
       }
 
-      // Use the existing GET /profile endpoint from your backend
       const response = await fetch("http://localhost:8000/profile", {
         method: "GET",
         headers: { 
@@ -142,7 +134,6 @@ export const Navbar2 = () => {
 
   return (
     <div className="fixed top-32 right-[2.6rem] w-[22.5rem] z-40">
-      {/* Nav Items */}
       <nav className="flex shadow-md flex-col gap-2 bg-[#fffce1] w-full rounded-full text-2xl text-center text-black text-bold">
         {siteConfig.navMenuItems?.map((item) => {
           const isProfileItem = item.label.toLowerCase() === "profile";

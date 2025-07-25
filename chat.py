@@ -42,7 +42,6 @@ def create_chat_router(db):
             email = user.get("email", "unknown")
             print(f"WebSocket: Verifying user {email} with UID {user_id}")
             
-            # Check if user exists, auto-register if not
             user_data = await db.Users.find_one({"firebase_uid": user_id})
             if not user_data:
                 print(f"User {email} not found, auto-registering")

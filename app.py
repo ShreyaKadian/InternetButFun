@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from firebase_admin import credentials, auth as firebase_auth, initialize_app
 from db import db
 
-# Initialize Firebase Admin
 try:
     cred = credentials.Certificate("serviceAccountKey.json")
     initialize_app(cred)
@@ -11,10 +10,8 @@ try:
 except Exception as e:
     print(f"Firebase Admin initialization failed: {e}")
 
-# Initialize FastAPI app
 app = FastAPI()
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -23,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Middleware to get current user
 async def get_current_user(request: Request):
     print("=== TOKEN DEBUG ===")
     token = request.headers.get("Authorization")

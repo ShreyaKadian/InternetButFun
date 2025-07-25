@@ -1,4 +1,3 @@
-// components/PostCard.jsx
 import React from "react";
 import { Card, CardBody, Image, Button, Slider } from "@heroui/react";
 import {
@@ -8,7 +7,7 @@ import {
   PreviousIcon,
   RepeatOneIcon,
   ShuffleIcon,
-} from "./Icons"; // assume you move your icons here
+} from "./Icons"; 
 
 export default function PostCard({ title, tracks }) {
   const [liked, setLiked] = React.useState(false);

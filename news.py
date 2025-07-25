@@ -8,18 +8,15 @@ from app import get_current_user, db
 
 router = APIRouter()
 
-# Pydantic Schemas
 class NewsModel(BaseModel):
     title: str
     content: str
     url: Optional[str] = None
     author: str
 
-# Create news (admin-only, manual entry)
 @router.post("/news")
 async def create_news(news: NewsModel, user=Depends(get_current_user)):
     try:
-        # Optionally, add admin check here if only specific users can create news
         news_data = {
             "title": news.title,
             "content": news.content,
@@ -34,7 +31,6 @@ async def create_news(news: NewsModel, user=Depends(get_current_user)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create news: {str(e)}")
 
-# Get all news with pagination
 @router.get("/news")
 async def get_all_news(page: int = 1, limit: int = 10, user=Depends(get_current_user)):
     try:
@@ -49,14 +45,12 @@ async def get_all_news(page: int = 1, limit: int = 10, user=Depends(get_current_
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch news: {str(e)}")
 
-# Delete news (admin-only, optional)
 @router.delete("/news/{news_id}")
 async def delete_news(news_id: str, user=Depends(get_current_user)):
     try:
         if not ObjectId.is_valid(news_id):
             raise HTTPException(status_code=400, detail="Invalid news ID")
             
-        # Optionally, add admin check here
         news = await db.News.find_one({"_id": ObjectId(news_id)})
         if not news:
             raise HTTPException(status_code=404, detail="News not found")

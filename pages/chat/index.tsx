@@ -7,7 +7,6 @@ import { getAuth } from "firebase/auth";
 import { title } from "@/components/primitives";
 import { Input, Button } from "@heroui/react";
 
-// Basic ErrorPage component
 const ErrorPage = ({ errorType, onRefresh }: { errorType: string; onRefresh?: () => void }) => {
   return (
     <div className="text-center">
@@ -17,7 +16,6 @@ const ErrorPage = ({ errorType, onRefresh }: { errorType: string; onRefresh?: ()
   );
 };
 
-// Fix type for Avatar
 declare module "@heroui/avatar" {
   interface AvatarProps {
     onError?: (event: React.SyntheticEvent<HTMLImageElement>) => void;
@@ -159,7 +157,6 @@ export default function ChatPage() {
       <div className="flex flex-col px-4 pt-16 pb-6 text-black">
         <h1 className={`${title()} mb-8 text-center text-black`}>Chat</h1>
 
-        {/* Messages */}
         <div className="flex flex-col gap-4 mb-6">
           {messages.length === 0 && !error ? (
             <div className="text-center py-8">
@@ -195,7 +192,6 @@ export default function ChatPage() {
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input */}
         <div className="flex gap-2">
           <Input
             isClearable

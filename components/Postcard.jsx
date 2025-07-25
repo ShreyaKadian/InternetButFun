@@ -31,7 +31,7 @@ export default function PostCard({
   onComment,
   userProfilePic,
 }) {
-  const [showPostImage, setShowPostImage] = useState(true); // Default to post image
+  const [showPostImage, setShowPostImage] = useState(true); 
   const [imageError, setImageError] = useState(false);
 
   const [showTooltip, setShowTooltip] = useState({
@@ -65,7 +65,6 @@ export default function PostCard({
     }, 2000);
   };
 
-  // Determine which image to show
   const getImageSource = () => {
     if (showPostImage && imageUrl) {
       return imageUrl;
@@ -88,7 +87,6 @@ export default function PostCard({
     <Card className="w-[30rem] font-sans shadow-xl bg-white text-black">
       <CardBody className="p-4">
         <div className="flex flex-col md:flex-row gap-1 items-start">
-          {/* Image Section */}
           <div className="flex-shrink-0 w-full md:w-44">
             <Image
               alt={showPostImage ? "Post image" : "User profile"}
@@ -98,9 +96,7 @@ export default function PostCard({
             />
           </div>
 
-          {/* Content Section */}
           <div className="flex flex-col justify-between flex-1 min-w-0 pl-3">
-            {/* Header */}
             <div className="flex justify-between items-start mb-2">
               <div className="flex flex-col gap-1 flex-1 min-w-0">
                 <h3 className="font-semibold text-black text-sm">
@@ -130,9 +126,7 @@ export default function PostCard({
               </Button>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex items-center gap-1 mt-auto relative mt-5">
-              {/* Save */}
               <Button
                 isIconOnly
                 variant="light"
@@ -143,7 +137,6 @@ export default function PostCard({
                 {saved ? <FullButton /> : <SaveButton />}
               </Button>
 
-              {/* Comments Button */}
               <div className="relative">
                 <Button
                   isIconOnly
@@ -161,7 +154,6 @@ export default function PostCard({
                 )}
               </div>
 
-              {/* Plus (Toggle Profile/Post Image) */}
               <Button
                 isIconOnly
                 variant="light"
@@ -173,7 +165,6 @@ export default function PostCard({
                 <PLusbutton size={24} />
               </Button>
 
-              {/* Share Button */}
               <div className="relative">
                 <Button
                   isIconOnly
@@ -191,7 +182,6 @@ export default function PostCard({
                 )}
               </div>
 
-              {/* More Button */}
               <div className="relative">
                 <Button
                   isIconOnly
@@ -210,7 +200,6 @@ export default function PostCard({
               </div>
             </div>
 
-            {/* Stats */}
             <div className="flex items-center gap-4 mt-0 text-[0.7rem] text-black ml-1">
               <span>{likeCount} likes</span>
               <span>{saveCount} saves</span>

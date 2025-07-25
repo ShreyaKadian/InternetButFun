@@ -1,4 +1,3 @@
-// pages/add-updates.tsx
 import { useState } from "react";
 import { Input, Textarea, Button } from "@heroui/react";
 
