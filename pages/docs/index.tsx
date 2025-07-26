@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-
 import { auth } from "../../firebase/firebase";
-
 import PostCard from "@/components/Postcard";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
@@ -45,15 +43,12 @@ export default function DocsPage() {
   const getAuthToken = async (): Promise<string | null> => {
     try {
       const user = auth.currentUser;
-
       if (user) {
         return await user.getIdToken();
       }
-
       return null;
     } catch (error) {
       console.error("Error getting auth token:", error);
-
       return null;
     }
   };
@@ -66,15 +61,15 @@ export default function DocsPage() {
 
     try {
       const token = await getAuthToken();
-
       if (!token) {
         setError("unauthorized");
         setLoading(false);
-
         return;
       }
 
-      const response = await fetch("http://localhost:8000/posts", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      console.log("API URL:", API_URL); // Debug log
+      const response = await fetch(`${API_URL}/posts`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -90,18 +85,15 @@ export default function DocsPage() {
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         return;
       }
 
       const newPosts: Post[] = await response.json();
-
       if (isInitial) {
         setPosts(newPosts);
       } else {
-        setPosts(newPosts);
+        setPosts(newPosts); 
       }
-
       if (newPosts.length < 10) {
         setHasMore(false);
       }
@@ -128,7 +120,6 @@ export default function DocsPage() {
     );
 
     const currentLoader = loaderRef.current;
-
     if (currentLoader) observer.observe(currentLoader);
 
     return () => {
@@ -139,32 +130,26 @@ export default function DocsPage() {
   const handleLike = async (postId: string) => {
     try {
       const token = await getAuthToken();
-
       if (!token) {
         setError("unauthorized");
-
         return;
       }
 
       const post = posts.find((p) => p._id === postId);
-
       if (!post) {
         setError("notFound");
-
         return;
       }
 
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const endpoint = post.liked ? "unlike" : "like";
-      const response = await fetch(
-        `http://localhost:8000/posts/${postId}/${endpoint}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(`${API_URL}/posts/${postId}/${endpoint}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (response.ok) {
         setPosts((prevPosts) =>
@@ -190,32 +175,26 @@ export default function DocsPage() {
   const handleSave = async (postId: string) => {
     try {
       const token = await getAuthToken();
-
       if (!token) {
         setError("unauthorized");
-
         return;
       }
 
       const post = posts.find((p) => p._id === postId);
-
       if (!post) {
         setError("notFound");
-
         return;
       }
 
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       const endpoint = post.saved ? "unsave" : "save";
-      const response = await fetch(
-        `http://localhost:8000/posts/${postId}/${endpoint}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      const response = await fetch(`${API_URL}/posts/${postId}/${endpoint}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (response.ok) {
         setPosts((prevPosts) =>
@@ -241,24 +220,20 @@ export default function DocsPage() {
   const handleComment = async (postId: string, commentContent: string) => {
     try {
       const token = await getAuthToken();
-
       if (!token) {
         setError("unauthorized");
-
         return;
       }
 
-      const response = await fetch(
-        `http://localhost:8000/posts/${postId}/comment`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ content: commentContent }),
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const response = await fetch(`${API_URL}/posts/${postId}/comment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ content: commentContent }),
+      });
 
       if (response.ok) {
         loadPosts(true);
@@ -282,7 +257,7 @@ export default function DocsPage() {
       <DefaultLayout>
         <section className="flex flex-col items-center gap-6 py-8 md:py-10">
           <div className="text-center">
-<h1 className={`${title()} text-black mt-12`}>News</h1>
+            <h1 className={`${title()} text-black mt-12`}>News</h1>
           </div>
           <ErrorPage errorType={error} />
         </section>
@@ -293,16 +268,9 @@ export default function DocsPage() {
 
   return (
     <DefaultLayout>
-      <div>
-
-      </div>
-      <section className="flex flex-col w-[53rem] ml-8 gap-6 py-8 md:py-10 ">
-
-                                  <h1 className={`${title()} text-black ml-32 mt-4`}>Posts</h1>
-
-
+      <section className="flex flex-col w-[53rem] ml-8 gap-6 py-8 md:py-10">
+        <h1 className={`${title()} text-black ml-32 mt-4`}>Posts</h1>
         <div className="flex flex-col gap-6 w-full px-4 mt-2">
-          
           {posts.length === 0 && !loading ? (
             <div className="text-center py-8">
               <ErrorPage errorType="notFound" />
@@ -323,19 +291,15 @@ export default function DocsPage() {
                 title={post.title}
                 userProfilePic={post.userProfilePic}
                 username={post.username}
-                onComment={(content: string) =>
-                  handleComment(post._id, content)
-                }
+                onComment={(content: string) => handleComment(post._id, content)}
                 onLike={() => handleLike(post._id)}
                 onSave={() => handleSave(post._id)}
               />
             ))
           )}
         </div>
-
         <div ref={loaderRef} className="h-10 w-full" />
       </section>
-
       <Navbar2 />
     </DefaultLayout>
   );
