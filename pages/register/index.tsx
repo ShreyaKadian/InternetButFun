@@ -61,8 +61,13 @@ export default function IndexPage() {
         return;
       }
 
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      console.log("API URL:", API_URL); // Debug log
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      if (!API_URL) {
+        console.error("API_URL is not defined. Check your environment variables.");
+        return;
+      }
+      console.log("Sending to:", `${API_URL.replace(/\/+$/, '')}/complete-profile`);
+      console.log("Token:", token ? token.substring(0, 10) + "..." : "No token");
       const profileData = {
         username: username.trim(),
         aboutyou: aboutyou.trim(),
@@ -73,7 +78,7 @@ export default function IndexPage() {
             : null,
       };
 
-      const response = await fetch(`${API_URL}/complete-profile`, {
+      const response = await fetch(`${API_URL.replace(/\/+$/, '')}/complete-profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,9 +142,13 @@ export default function IndexPage() {
 
       if (!token) return;
 
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      if (!API_URL) {
+        console.error("API_URL is not defined. Check your environment variables.");
+        return;
+      }
       const response = await fetch(
-        `${API_URL}/check-username/${usernameToCheck}`,
+        `${API_URL.replace(/\/+$/, '')}/check-username/${usernameToCheck}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

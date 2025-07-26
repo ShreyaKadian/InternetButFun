@@ -35,9 +35,14 @@ export default function Auth() {
 
         const idToken = await userCredential.user.getIdToken();
 
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        console.log("API URL:", API_URL); // Debug log
-        const response = await fetch(`${API_URL}/Auth`, {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        if (!API_URL) {
+          console.error("API_URL is not defined. Check your environment variables.");
+          return;
+        }
+        console.log("Sending to:", `${API_URL.replace(/\/+$/, '')}/Auth`);
+        console.log("Token:", idToken ? idToken.substring(0, 10) + "..." : "No token");
+        const response = await fetch(`${API_URL.replace(/\/+$/, '')}/Auth`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${idToken}`,
@@ -46,8 +51,8 @@ export default function Auth() {
         });
 
         if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.detail || "Failed to register user in database");
+          const error = await response.json().catch(() => ({ detail: "Unknown error" }));
+          throw new Error(error.detail || `Failed to register user in database (Status: ${response.status})`);
         }
 
         router.push("/register");
