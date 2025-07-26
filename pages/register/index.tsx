@@ -62,8 +62,9 @@ export default function IndexPage() {
       }
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      if (!API_URL) {
-        console.error("API_URL is not defined. Check your environment variables.");
+      if (!API_URL || API_URL.includes("localhost")) {
+        console.error("Invalid API_URL:", API_URL, "Aborting request.");
+        alert("Server configuration error. Contact support.");
         return;
       }
       console.log("Sending to:", `${API_URL.replace(/\/+$/, '')}/complete-profile`);
@@ -143,8 +144,8 @@ export default function IndexPage() {
       if (!token) return;
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      if (!API_URL) {
-        console.error("API_URL is not defined. Check your environment variables.");
+      if (!API_URL || API_URL.includes("localhost")) {
+        console.error("Invalid API_URL:", API_URL, "Aborting request.");
         return;
       }
       const response = await fetch(

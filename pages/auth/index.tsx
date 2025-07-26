@@ -36,8 +36,9 @@ export default function Auth() {
         const idToken = await userCredential.user.getIdToken();
 
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        if (!API_URL) {
-          console.error("API_URL is not defined. Check your environment variables.");
+        if (!API_URL || API_URL.includes("localhost")) {
+          console.error("Invalid API_URL:", API_URL, "Aborting request.");
+          setMessage({ type: "error", text: "Server configuration error. Contact support." });
           return;
         }
         console.log("Sending to:", `${API_URL.replace(/\/+$/, '')}/Auth`);

@@ -1,13 +1,15 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+import traceback
 from app import app, get_current_user, db
 from posts import router as post_router
 from chat import create_chat_router
 from updates import router as update_router
 from profilepage import router as profile_router  
 from news import router as news_router 
+
 app.include_router(news_router)  
 app.include_router(post_router)
 app.include_router(create_chat_router(db))
@@ -23,7 +25,6 @@ class ProfileData(BaseModel):
 @app.get("/ping")
 def ping():
     return {"message": "pong"}
-
 
 @app.post("/Auth")
 async def register_user(user=Depends(get_current_user)):
@@ -49,7 +50,7 @@ async def register_user(user=Depends(get_current_user)):
 
         return {"message": "User registered", "profile_complete": False}
     except Exception as e:
-        print(f"Error in register_user: {str(e)}")
+        print(f"Error in register_user: {str(e)} - Stacktrace: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @app.post("/complete-profile")
