@@ -22,7 +22,6 @@ async def get_user_profile(firebase_uid: str):
         raise HTTPException(status_code=404, detail="User profile not found")
     return user_data
 
-
 @router.post("/posts")
 async def create_post(post: PostModel, user=Depends(get_current_user)):
     try:
@@ -131,7 +130,6 @@ async def delete_post(post_id: str, user=Depends(get_current_user)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to delete post: {str(e)}")
-
 
 @router.post("/posts/{post_id}/like")
 async def like_post(post_id: str, user=Depends(get_current_user)):
@@ -286,7 +284,6 @@ async def get_post_comments(post_id: str, user=Depends(get_current_user)):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch comments: {str(e)}")
-
 
 @router.get("/my-liked-posts")
 async def get_my_liked_posts(user=Depends(get_current_user)):
