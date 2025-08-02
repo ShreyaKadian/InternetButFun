@@ -36,21 +36,22 @@ export const Navbar2 = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:8000/Auth", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
+      const response = await fetch(`${cleanApiUrl}/Auth`, {
         method: "POST",
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log("Auth endpoint response:", data);
-        
-        setUserProfile(data);
+        setUserProfile(data || null);
       } else {
-        console.error("Failed to fetch user profile");
+        console.error("Failed to fetch user profile, status:", response.status);
       }
     } catch (error) {
       console.error("Error fetching current user profile:", error);
@@ -96,9 +97,11 @@ export const Navbar2 = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:8000/profile", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
+      const response = await fetch(`${cleanApiUrl}/profile`, {
         method: "GET",
-        headers: { 
+        headers: {
           Authorization: `Bearer ${token}`,
         },
       });
@@ -115,10 +118,9 @@ export const Navbar2 = () => {
           alert("Profile not complete. Please complete your profile first.");
         }
       } else {
-        console.error("Failed to fetch profile");
+        console.error("Failed to fetch profile, status:", response.status);
         alert("Failed to load profile. Please try again.");
       }
-
     } catch (error) {
       console.error("Error:", error);
       alert("Error accessing profile.");
@@ -138,7 +140,7 @@ export const Navbar2 = () => {
         {siteConfig.navMenuItems?.map((item) => {
           const isProfileItem = item.label.toLowerCase() === "profile";
           const displayLabel = isProfileItem ? getProfileLabel() : item.label;
-          const actualHref = isProfileItem ? "#" : item.href; // Use # for profile to prevent default navigation
+          const actualHref = isProfileItem ? "#" : item.href;
 
           return (
             <div
