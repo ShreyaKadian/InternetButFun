@@ -9,8 +9,8 @@ import {
 } from "@/components/icons";
 
 export const siteConfig = {
-  name: "Next.js + HeroUI",
-  description: "Make beautiful websites regardless of your design experience.",
+  name: "InternetButFun",
+  description: "Its internet but fun",
   navItems: [
     {
       label: "Home",
