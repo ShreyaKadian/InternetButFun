@@ -62,7 +62,7 @@ export default function IndexPage() {
       }
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      if (!API_URL || API_URL.includes("localhost")) {
+      if (typeof window !== "undefined" && (!API_URL || API_URL.includes("localhost"))) {
         console.error("Invalid API_URL:", API_URL, "Aborting request.");
         alert("Server configuration error. Contact support.");
         return;
@@ -144,7 +144,7 @@ export default function IndexPage() {
       if (!token) return;
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      if (!API_URL || API_URL.includes("localhost")) {
+      if (typeof window !== "undefined" && (!API_URL || API_URL.includes("localhost"))) {
         console.error("Invalid API_URL:", API_URL, "Aborting request.");
         return;
       }
