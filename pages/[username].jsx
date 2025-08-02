@@ -1,230 +1,1158 @@
-import { useState, useRef, ChangeEvent, MouseEvent } from "react";
+import { auth, onAuthStateChanged } from "../firebase/firebase";
 import { useRouter } from "next/router";
-import { Input, Button } from "@heroui/react";
+import { useEffect, useState } from "react";
+import { Link } from "@heroui/link";
+import { Snippet } from "@heroui/snippet";
+import { Code } from "@heroui/code";
+import { button as buttonStyles } from "@heroui/theme";
+import { Navbar2 } from "@/components/navbar2";
+import { siteConfig } from "@/config/site";
+import { title, subtitle } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
+import { Avatar, AvatarGroup, AvatarIcon } from "@heroui/avatar";
+import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
+import { Input, Textarea, Button } from "@heroui/react";
+import PostCard from "@/components/Postcard";
+import NextLink from "next/link";
+import Head from "@/layouts/default";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-export default function IndexPage() {
+export default function ProfilePage() {
   const router = useRouter();
-  const [aboutyou, setaboutyou] = useState("");
-  const fileInputRef = useRef(null);
-  const [username, setusername] = useState("");
-  const [imageUrl, setImageUrl] = useState("https://placehold.co/600x400?text=Click+to+Upload");
-  const [likes, setLikes] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [usernameError, setUsernameError] = useState("");
+  const { username } = router.query;
+  const [profile, setProfile] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showInitialForm, setShowInitialForm] = useState(false);
+  const [initialProfileData, setInitialProfileData] = useState({
+    username: "",
+    aboutyou: "",
+    likes: "",
+    imageUrl: "",
+  });
+  const [formData, setFormData] = useState({
+    username: "",
+    aboutyou: "",
+    likes: [],
+    mood: "",
+    status: "",
+    socialLinks: {
+      spotify: "",
+      letterboxd: "",
+      discord: "",
+      instagram: "",
+      twitter: "",
+      website: "",
+    },
+    imageUrl: "",
+    age: "",
+    title: "",
+    location: "",
+    yapTopics: {
+      topic1: { name: "", description: "" },
+      topic2: { name: "", description: "" },
+      topic3: { name: "", description: "" },
+      topic4: { name: "", description: "" },
+      topic5: { name: "", description: "" },
+    },
+  });
 
-  const categories = ["Youtube", "Memes", "Politics", "Film", "Music", "Pop Culture"];
-
-  const getAuthToken = async () => {
-    const { auth } = await import("../../firebase/firebase");
+  const getToken = async () => {
     const user = auth.currentUser;
-    return user ? await user.getIdToken() : null;
+    if (user) {
+      try {
+        const token = await user.getIdToken();
+        console.log("Got Firebase token:", token ? "Yes" : "No");
+        return token;
+      } catch (error) {
+        console.error("Error getting token:", error);
+        return null;
+      }
+    }
+    return null;
   };
 
-  const bye = async () => {
-    if (!username.trim()) return alert("Please enter a username");
-    if (!aboutyou.trim()) return alert("Please tell us about yourself");
-    if (likes.length === 0) return alert("Please select at least one interest");
+  const formatTimestamp = (createdAt) => {
+    const now = new Date();
+    const postDate = new Date(createdAt);
+    const diffMs = now - postDate;
+    const diffSeconds = Math.floor(diffMs / 1000);
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
 
-    setLoading(true);
+    if (diffMinutes < 60) {
+      return `${diffMinutes}m ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours}h ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays}d ago`;
+    } else {
+      return postDate.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    }
+  };
+
+  const handleLike = async (postId) => {
+    const token = await getToken();
+    if (!token) {
+      alert("You must be logged in to like a post");
+      return;
+    }
     try {
-      const token = await getAuthToken();
-      if (!token) {
-        alert("Please log in first");
-        setLoading(false);
-        return;
+      const response = await fetch(
+        `http://localhost:8000/like-post/${postId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (response.ok) {
+        const { like_count } = await response.json();
+        setPosts(
+          posts.map((post) =>
+            post._id === postId
+              ? {
+                  ...post,
+                  liked: !post.liked,
+                  like_count: like_count,
+                }
+              : post,
+          ),
+        );
+      } else {
+        const error = await response.json();
+        console.error("Like error:", error);
+        alert(`Error: ${error.detail}`);
       }
-      if (!API_URL || API_URL.includes("localhost")) {
-        console.error("Invalid API_URL:", API_URL);
-        alert("Server configuration error. Contact support.");
-        return;
+    } catch (err) {
+      console.error("Error liking post:", err);
+      alert("Failed to like post");
+    }
+  };
+
+  const handleSave = async (postId) => {
+    const token = await getToken();
+    if (!token) {
+      alert("You must be logged in to save a post");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `http://localhost:8000/save-post/${postId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      if (response.ok) {
+        const { save_count } = await response.json();
+        setPosts(
+          posts.map((post) =>
+            post._id === postId
+              ? {
+                  ...post,
+                  saved: !post.saved,
+                  save_count: save_count,
+                }
+              : post,
+          ),
+        );
+      } else {
+        const error = await response.json();
+        console.error("Save error:", error);
+        alert(`Error: ${error.detail}`);
       }
+    } catch (err) {
+      console.error("Error saving post:", err);
+      alert("Failed to save post");
+    }
+  };
 
-      const profileData = {
-        username: username.trim(),
-        aboutyou: aboutyou.trim(),
-        likes,
-        imageUrl: imageUrl !== "https://placehold.co/600x400?text=Click+to+Upload" ? imageUrl : null,
-      };
+  const handleComment = (postId) => {
+    console.log(`Comment clicked for post ${postId}`);
+    alert("Comment functionality not yet implemented");
+  };
 
-      const response = await fetch(`${API_URL.replace(/\/+$/, "")}/complete-profile`, {
+  const shouldShowEditButton = () => {
+    return profile?.canEdit === true;
+  };
+
+  const handleInitialInputChange = (e) => {
+    const { name, value } = e.target;
+    setInitialProfileData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleInitialProfileSubmit = async (e) => {
+    e.preventDefault();
+    const token = await getToken();
+    if (!token) {
+      console.error("No token available");
+      setError("Please log in to register your profile");
+      return;
+    }
+    try {
+      const response = await fetch("http://localhost:8000/Auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify({
+          username: initialProfileData.username,
+          aboutyou: initialProfileData.aboutyou,
+          likes: initialProfileData.likes
+            .split(",")
+            .map((item) => item.trim())
+            .filter((item) => item),
+          imageUrl: initialProfileData.imageUrl || null,
+        }),
       });
-
+      const data = await response.json();
       if (response.ok) {
-        alert("Profile created successfully!");
-        router.push("/");
+        console.log("User registered:", data);
+        setShowInitialForm(false);
+        if (data.username) {
+          router.push(`/${data.username}`);
+        }
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.detail}`);
+        console.error("Error registering user:", data.detail);
+        setError(data.detail);
       }
     } catch (error) {
-      console.error("Error creating profile:", error);
-      alert("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error("Error submitting initial profile:", error);
+      setError("Failed to register profile");
     }
   };
 
-  const Addtolist = (category) => {
-    setLikes((prev) =>
-      prev.includes(category) ? prev.filter((item) => item !== category) : [...prev, category]
-    );
-  };
-
-  const handleImageClick = (e) => {
-    e.preventDefault();
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setImageUrl(e.target.result);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log(
+        "Auth state changed:",
+        user ? `User: ${user.email}` : "No user",
+      );
+      if (user) {
+        const userInfo = { uid: user.uid, email: user.email };
+        setCurrentUser(userInfo);
+        console.log("Set current user:", userInfo);
+        try {
+          const token = await user.getIdToken();
+          const response = await fetch("http://localhost:8000/Auth", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (data.profile_complete === false) {
+            setShowInitialForm(true);
+          }
+        } catch (error) {
+          console.error("Error checking user registration:", error);
         }
-      };
-      reader.readAsDataURL(file);
+      } else {
+        setCurrentUser(null);
+        console.log("No current user");
+      }
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!username || authLoading) return;
+    const fetchProfileData = async () => {
+      try {
+        const token = await getToken();
+        console.log("Fetching profile, token exists:", !!token);
+        console.log("Fetching for username:", username);
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        console.log("Fetching profile with headers:", headers);
+        const profileResponse = await fetch(
+          `http://localhost:8000/profile/${encodeURIComponent(username)}`,
+          { headers },
+        );
+        console.log("Profile fetch response status:", profileResponse.status);
+        if (!profileResponse.ok) {
+          const errorText = await profileResponse.text();
+          console.error("Profile fetch error:", errorText);
+          throw new Error(
+            `Failed to fetch profile: ${profileResponse.status} ${errorText}`,
+          );
+        }
+        const profileData = await profileResponse.json();
+        console.log("Profile response:", profileData);
+        console.log("Is page editable?", profileData.canEdit ? "Yes" : "No");
+        setProfile(profileData);
+        setFormData({
+          username: profileData.username || "",
+          aboutyou: profileData.aboutyou || "",
+          likes: Array.isArray(profileData.likes) ? profileData.likes : [],
+          mood: profileData.mood || "",
+          status: profileData.status || profileData.mood || "",
+          socialLinks: profileData.socialLinks || {
+            spotify: "",
+            letterboxd: "",
+            discord: "",
+            instagram: "",
+            twitter: "",
+            website: "",
+          },
+          imageUrl: profileData.imageUrl || "",
+          age: profileData.age || "",
+          title: profileData.title || "",
+          location: profileData.location || "",
+          yapTopics: profileData.yapTopics || {
+            topic1: { name: "", description: "" },
+            topic2: { name: "", description: "" },
+            topic3: { name: "", description: "" },
+            topic4: { name: "", description: "" },
+            topic5: { name: "", description: "" },
+          },
+        });
+        const postsResponse = await fetch(
+          `http://localhost:8000/profile/${encodeURIComponent(username)}/posts`,
+        );
+        if (postsResponse.ok) {
+          const postsData = await postsResponse.json();
+          setPosts(Array.isArray(postsData) ? postsData : []);
+        } else {
+          console.error("Posts fetch failed:", await postsResponse.text());
+          setPosts([]);
+        }
+      } catch (err) {
+        console.error("Error fetching profile data:", err);
+        setError(err.message);
+      }
+    };
+    fetchProfileData();
+  }, [username, currentUser, authLoading]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name.startsWith("socialLinks.")) {
+      const key = name.split(".")[1];
+      setFormData((prev) => ({
+        ...prev,
+        socialLinks: { ...prev.socialLinks, [key]: value },
+      }));
+    } else if (name.startsWith("yapTopics.")) {
+      const [_, topicKey, field] = name.split(".");
+      setFormData((prev) => ({
+        ...prev,
+        yapTopics: {
+          ...prev.yapTopics,
+          [topicKey]: { ...prev.yapTopics[topicKey], [field]: value },
+        },
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const checkUsernameAvailability = async (usernameToCheck) => {
-    if (usernameToCheck.length < 3) {
-      setUsernameError("Username must be at least 3 characters");
+  const handleLikesChange = (e) => {
+    const likes = e.target.value
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item);
+    setFormData((prev) => ({ ...prev, likes }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const token = await getToken();
+    if (!token) {
+      alert("You must be logged in to edit your profile");
       return;
     }
     try {
-      const token = await getAuthToken();
-      if (!token) return;
-      if (!API_URL || API_URL.includes("localhost")) {
-        console.error("Invalid API_URL:", API_URL);
-        return;
+      const response = await fetch(
+        `http://localhost:8000/profile/${username}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        },
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setProfile({ ...profile, ...formData, canEdit: true });
+        setIsEditing(false);
+        if (formData.username !== username) {
+          router.push(`/${formData.username}`);
+        }
+      } else {
+        const error = await response.json();
+        console.error("Update error:", error);
+        alert(`Error: ${error.detail}`);
       }
-      const response = await fetch(`${API_URL.replace(/\/+$/, "")}/check-username/${usernameToCheck}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
-      setUsernameError(result.available ? "" : "Username is already taken");
-    } catch (error) {
-      console.error("Error checking username:", error);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      alert("Failed to update profile");
     }
   };
 
-  const handleUsernameChange = (value) => {
-    setusername(value);
-    if (value.trim()) {
-      setTimeout(() => checkUsernameAvailability(value.trim()), 500);
-    } else {
-      setUsernameError("");
-    }
-  };
+  if (authLoading) return <div className="text-black">Loading authentication...</div>;
+  if (error) return <div className="text-black">{error}</div>;
+
+  if (showInitialForm) {
+    return (
+      <div className="bg-transparent min-h-screen">
+        <header className="fixed top-0 left-0 h-20 bg-[#dff6da] flex items-center w-full z-50">
+          <NextLink
+            className="flex items-center gap-0 h-20 w-[25rem] bg-[#FFFCE1]"
+            href="/"
+          >
+            <span className="font-bold text-[#88e7ba] text-[3.25rem] ml-[2.6rem] font-dancing">
+              InternetButFun
+            </span>
+          </NextLink>
+          <div className="flex-1 flex justify-center items-center">
+            <div className="flex shadow-sm flex-column mt-3 gap-8 text-base bg-[#FFFCE1] px-5 rounded-full py-1 h-8 text-[#595540]">
+              <span className="border-r-2 border-grey pr-5">Fun</span>
+              <span className="border-r-2 pr-5">Wholesome</span>
+              <span>Sexy</span>
+            </div>
+            <div className="flex shadow-sm flex-column mt-3 text-base bg-[#FFFCE1] ml-[0.2rem] w-[8rem] px-5 rounded-full py-1 h-8 text-[#595540] text-center">
+              <span className="text-center">All In One</span>
+            </div>
+          </div>
+          <div className="flex gap-3 mr-[2.6rem] mt-3">
+            <a
+              className="bg-[#63d1c2] shadow-md text-[#FFFCE1] px-5 rounded-full py-1 h-8 w-28 text-center font-bold transition-all duration-300 hover:bg-[#50bfb1] hover:scale-105"
+              href="https://www.instagram.com"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Insta
+            </a>
+            <a
+              className="bg-[#dee1ca] shadow-md text-[#a19889] px-5 rounded-full py-1 h-8 w-28 text-center font-bold transition-all duration-300 hover:bg-[#c6c9b4] hover:scale-105"
+              href="https://twitter.com"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Twitter
+            </a>
+            <a
+              className="bg-[#fec1a2] shadow-md text-[#d1574a] px-5 rounded-full py-1 h-8 w-28 text-center font-bold transition-all duration-300 hover:bg-[#f5a07f] hover:scale-105"
+              href="https://github.com"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Git
+            </a>
+          </div>
+        </header>
+
+        <div className="container mx-auto p-4 mt-20">
+          <Card className="bg-white">
+            <CardHeader>
+              <h3 className="text-lg font-bold text-black">Complete Your Profile</h3>
+            </CardHeader>
+            <CardBody className="bg-white">
+              <form onSubmit={handleInitialProfileSubmit}>
+                <Input
+                  isClearable
+                  className="w-full mb-2"
+                  classNames={{
+                    base: "border border-2 focus-within:border-black",
+                    inputWrapper: "bg-white focus-within:bg-white",
+                    input: "bg-white hover:bg-white placeholder:text-black",
+                    label: "text-black",
+                  }}
+                  placeholder="Username"
+                  type="text"
+                  value={initialProfileData.username}
+                  variant="bordered"
+                  onChange={handleInitialInputChange}
+                  onClear={() => setInitialProfileData((prev) => ({ ...prev, username: "" }))}
+                  name="username"
+                />
+                <Textarea
+                  isClearable
+                  className="w-full mb-2"
+                  classNames={{
+                    base: "border border-2 focus-within:border-black",
+                    inputWrapper: "bg-white focus-within:bg-white",
+                    input: "bg-white hover:bg-white placeholder:text-black",
+                    label: "text-black",
+                  }}
+                  placeholder="About You"
+                  value={initialProfileData.aboutyou}
+                  variant="bordered"
+                  onChange={handleInitialInputChange}
+                  onClear={() => setInitialProfileData((prev) => ({ ...prev, aboutyou: "" }))}
+                  name="aboutyou"
+                />
+                <Input
+                  isClearable
+                  className="w-full mb-2"
+                  classNames={{
+                    base: "border border-2 focus-within:border-black",
+                    inputWrapper: "bg-white focus-within:bg-white",
+                    input: "bg-white hover:bg-white placeholder:text-black",
+                    label: "text-black",
+                  }}
+                  placeholder="Likes (comma-separated)"
+                  type="text"
+                  value={initialProfileData.likes}
+                  variant="bordered"
+                  onChange={handleInitialInputChange}
+                  onClear={() => setInitialProfileData((prev) => ({ ...prev, likes: "" }))}
+                  name="likes"
+                />
+                <Input
+                  isClearable
+                  className="w-full mb-2"
+                  classNames={{
+                    base: "border border-2 focus-within:border-black",
+                    inputWrapper: "bg-white focus-within:bg-white",
+                    input: "bg-white hover:bg-white placeholder:text-black",
+                    label: "text-black",
+                  }}
+                  placeholder="Image URL"
+                  type="text"
+                  value={initialProfileData.imageUrl}
+                  variant="bordered"
+                  onChange={handleInitialInputChange}
+                  onClear={() => setInitialProfileData((prev) => ({ ...prev, imageUrl: "" }))}
+                  name="imageUrl"
+                />
+                <Button type="submit" className="bg-white text-black border border-black rounded-md">
+                  Submit Profile
+                </Button>
+              </form>
+            </CardBody>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) return <div className="text-black">Loading profile...</div>;
 
   return (
-    <DefaultLayout>
-      <div className="flex flex-col items-center mt-20 gap-0 p-6 max-w-md mx-auto rounded-xl shadow bg-[#FFFCE1] text-black">
-        <h2 className="text-xl font-semibold">{"Welcome! Let's set up your profile"}</h2>
-
-        <div className="p-8">
-          <button
-            type="button"
-            onClick={handleImageClick}
-            className="w-96 h-72 rounded-lg cursor-pointer hover:opacity-80 transition-opacity border border-black bg-black"
+    <div className="bg-transparent min-h-screen">
+      <header className="fixed top-0 left-0 h-20 bg-[#dff6da] flex items-center w-full z-50">
+        <NextLink
+          className="flex items-center gap-0 h-20 w-[25rem] bg-[#FFFCE1]"
+          href="/"
+        >
+          <span className="font-bold text-[#88e7ba] text-[3.25rem] ml-[2.6rem] font-dancing">
+            InternetButFun
+          </span>
+        </NextLink>
+        <div className="flex-1 flex justify-center items-center">
+          <div className="flex shadow-sm flex-column mt-3 gap-8 text-base bg-[#FFFCE1] px-5 rounded-full py-1 h-8 text-[#595540]">
+            <span className="border-r-2 border-grey pr-5">Fun</span>
+            <span className="border-r-2 pr-5">Wholesome</span>
+            <span>Sexy</span>
+          </div>
+          <div className="flex shadow-sm flex-column mt-3 text-base bg-[#FFFCE1] ml-[0.2rem] w-[8rem] px-5 rounded-full py-1 h-8 text-[#595540] text-center">
+            <span className="text-center">All In One</span>
+          </div>
+        </div>
+        <div className="flex gap-3 mr-[2.6rem] mt-3">
+          <a
+            className="bg-[#63d1c2] shadow-md text-[#FFFCE1] px-5 rounded-full py-1 h-8 w-28 text-center font-bold transition-all duration-300 hover:bg-[#50bfb1] hover:scale-105"
+            href="https://www.instagram.com"
+            rel="noopener noreferrer"
+            target="_blank"
           >
-            <img
-              alt="Click to change"
-              className="w-full h-full object-cover rounded-lg"
-              src={imageUrl}
-              onError={() => setImageUrl("https://placehold.co/600x400?text=Click+to+Upload")}
-            />
-          </button>
-          <input
-            ref={fileInputRef}
-            accept="image/*"
-            className="hidden"
-            type="file"
-            onChange={handleFileChange}
-          />
+            Insta
+          </a>
+          <a
+            className="bg-[#dee1ca] shadow-md text-[#a19889] px-5 rounded-full py-1 h-8 w-28 text-center font-bold transition-all duration-300 hover:bg-[#c6c9b4] hover:scale-105"
+            href="https://twitter.com"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Twitter
+          </a>
+          <a
+            className="bg-[#fec1a2] shadow-md text-[#d1574a] px-5 rounded-full py-1 h-8 w-28 text-center font-bold transition-all duration-300 hover:bg-[#f5a07f] hover:scale-105"
+            href="https://github.com"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Git
+          </a>
+        </div>
+      </header>
+
+      <div className="container mx-auto p-4 flex flex-col md:flex-row gap-4 mt-20">
+        <div className="flex flex-col w-full md:w-3/4 gap-4">
+          <Card className="py-4 px-1 w-full bg-white">
+            <CardHeader className="pb-0 pt-2 px-3 flex items-start">
+              <Avatar
+                className="rounded-xl object-cover size-52"
+                src={profile.imageUrl}
+                name={profile.username}
+              />
+              <div>
+                {isEditing ? (
+                  <>
+                    <Input
+                      isClearable
+                      className="w-full ml-4 mt-4"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder="Username"
+                      type="text"
+                      value={formData.username}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() => setFormData((prev) => ({ ...prev, username: "" }))}
+                      name="username"
+                    />
+                    <Input
+                      isClearable
+                      className="w-full ml-4 mt-2"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder="Title"
+                      type="text"
+                      value={formData.title}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() => setFormData((prev) => ({ ...prev, title: "" }))}
+                      name="title"
+                    />
+                    <Input
+                      isClearable
+                      className="w-full ml-4 mt-2"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder="Location"
+                      type="text"
+                      value={formData.location}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() => setFormData((prev) => ({ ...prev, location: "" }))}
+                      name="location"
+                    />
+                    <Input
+                      isClearable
+                      className="w-full ml-4 mt-2"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder="Age"
+                      type="text"
+                      value={formData.age}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() => setFormData((prev) => ({ ...prev, age: "" }))}
+                      name="age"
+                    />
+                    <Input
+                      isClearable
+                      className="w-full ml-4 mt-2"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder="Image URL"
+                      type="text"
+                      value={formData.imageUrl}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() => setFormData((prev) => ({ ...prev, imageUrl: "" }))}
+                      name="imageUrl"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <h4 className="font-bold text-large ml-4 mt-4 text-black">
+                      {profile.username || "QuirkyLilSigma"}
+                    </h4>
+                    <p className="text-sm uppercase font-bold mt-1 ml-4 text-black">
+                      {profile.title || "Airman"}
+                    </p>
+                    <h5 className="text-sm uppercase font-bold mt-0 ml-4 text-black">
+                      {profile.location || "Clouds,Sky"}
+                    </h5>
+                    <h5 className="text-medium mt-0 ml-4 text-black">
+                      {profile.age || "18"}
+                    </h5>
+                  </>
+                )}
+              </div>
+            </CardHeader>
+            <CardBody className="overflow-visible py-4 bg-white">
+              <div className="ml-2">
+                {isEditing ? (
+                  <>
+                    <Input
+                      isClearable
+                      className="w-full mb-2"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder="Mood"
+                      type="text"
+                      value={formData.mood}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() => setFormData((prev) => ({ ...prev, mood: "" }))}
+                      name="mood"
+                    />
+                    <Input
+                      isClearable
+                      className="w-full mb-2"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder="Status"
+                      type="text"
+                      value={formData.status}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() => setFormData((prev) => ({ ...prev, status: "" }))}
+                      name="status"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div className="flex">
+                      <p className="text-tiny uppercase font-bold text-black">
+                        Mood:
+                      </p>
+                      <p className="text-tiny uppercase font-bold ml-1 text-black">
+                        {profile.mood || "Happy"}
+                      </p>
+                    </div>
+                    <div className="mt-1 flex">
+                      <p className="text-tiny uppercase font-bold text-black">
+                        Status:
+                      </p>
+                      <p className="text-tiny uppercase font-bold ml-1 text-black">
+                        {profile.status || "Im such a crazy baku sigma"}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="mt-2 ml-2">
+                {shouldShowEditButton() && (
+                  <Button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="mb-2 bg-white text-black border border-black rounded-md"
+                  >
+                    {isEditing ? "Cancel" : "Edit Profile"}
+                  </Button>
+                )}
+                {!shouldShowEditButton() && (
+                  <div className="text-sm text-black mb-2">
+                    <p>Edit button hidden</p>
+                    <p>Reason: canEdit = {String(profile?.canEdit)}</p>
+                  </div>
+                )}
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card className="py-4 px-1 w-full bg-white">
+            <CardHeader className="pb-0 pt-2 px-3 flex items-start">
+              <div>
+                <p className="text-sm uppercase font-bold mt-1 ml-0 text-black">
+                  Social Links
+                </p>
+              </div>
+            </CardHeader>
+            <CardBody className="overflow-visible py-1 bg-white">
+              {isEditing ? (
+                <div className="ml-0">
+                  {Object.keys(formData.socialLinks).map((key) => (
+                    <Input
+                      key={key}
+                      isClearable
+                      className="w-full mt-2"
+                      classNames={{
+                        base: "border border-2 focus-within:border-black",
+                        inputWrapper: "bg-white focus-within:bg-white",
+                        input: "bg-white hover:bg-white placeholder:text-black",
+                        label: "text-black",
+                      }}
+                      placeholder={`${key.charAt(0).toUpperCase() + key.slice(1)} URL`}
+                      type="text"
+                      value={formData.socialLinks[key]}
+                      variant="bordered"
+                      onChange={handleInputChange}
+                      onClear={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          socialLinks: { ...prev.socialLinks, [key]: "" },
+                        }))
+                      }
+                      name={`socialLinks.${key}`}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="ml-0">
+                  {Object.entries(profile.socialLinks || {}).map(
+                    ([key, value]) =>
+                      value && (
+                        <div key={key} className="flex">
+                          <p className="text-tiny uppercase font-bold text-black">
+                            {key.charAt(0).toUpperCase() + key.slice(1)}:
+                          </p>
+                          <p className="text-tiny uppercase font-bold ml-1 text-black">
+                            {value}
+                          </p>
+                        </div>
+                      ),
+                  )}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card className="w-full shadow-none h-[80px] bg-white">
+            <CardBody className="p-0 overflow-hidden h-full">
+              <div className="relative w-full h-full">
+                <iframe
+                  className="absolute top-0 left-0 w-full rounded-xl"
+                  src={
+                    profile.socialLinks?.spotify
+                      ? profile.socialLinks.spotify.replace(
+                          "user/",
+                          "embed/track/",
+                        ) + "?utm_source=generator&theme=0"
+                      : "https://open.spotify.com/embed/track/5p7GiBZNL1afJJDUrOA6C8?utm_source=generator&theme=0"
+                  }
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  allowFullScreen
+                />
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card className="py-4 px-1 w-full bg-white">
+            <CardHeader className="pb-0 pt-2 px-3 flex items-start">
+              <div>
+                <p className="text-sm uppercase font-bold mt-1 ml-0 text-black">
+                  Likes
+                </p>
+              </div>
+            </CardHeader>
+            <CardBody className="overflow-visible py-1 bg-white">
+              {isEditing ? (
+                <Input
+                  isClearable
+                  className="w-full ml-0"
+                  classNames={{
+                    base: "border border-2 focus-within:border-black",
+                    inputWrapper: "bg-white focus-within:bg-white",
+                    input: "bg-white hover:bg-white placeholder:text-black",
+                    label: "text-black",
+                  }}
+                  placeholder="Likes (comma-separated)"
+                  type="text"
+                  value={formData.likes.join(", ")}
+                  variant="bordered"
+                  onChange={handleLikesChange}
+                  onClear={() => setFormData((prev) => ({ ...prev, likes: [] }))}
+                  name="likes"
+                />
+              ) : (
+                <div className="ml-0 flex flex-wrap gap-2">
+                  {Array.isArray(profile.likes) && profile.likes.length > 0
+                    ? profile.likes.map((like, index) => (
+                        <div key={index} className="flex">
+                          <h2 className="text-tiny uppercase font-bold text-black bg-white p-1 rounded-full">
+                            {like}
+                          </h2>
+                        </div>
+                      ))
+                    : ["Spotify", "Music", "Movies", "Gaming"].map(
+                        (like, index) => (
+                          <div key={index} className="flex">
+                            <h2 className="text-tiny uppercase font-bold text-black bg-white p-1 rounded-full">
+                              {like}
+                            </h2>
+                          </div>
+                        ),
+                      )}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card className="py-4 px-1 w-full bg-white">
+            <CardHeader className="pb-0 pt-2 px-3 flex items-start">
+              <div>
+                <p className="text-sm uppercase font-bold mt-1 ml-0 text-black">
+                  Post History
+                </p>
+              </div>
+            </CardHeader>
+            <CardBody className="overflow-visible py-1 bg-white">
+              <div className="ml-0 flex flex-col gap-4">
+                {Array.isArray(posts) && posts.length > 0 ? (
+                  posts.map((post) => (
+                    <PostCard
+                      key={post._id}
+                      id={post._id}
+                      title={post.title || ""}
+                      content={post.content || ""}
+                      imageUrl={post.imageUrl || ""}
+                      username={post.username || profile.username}
+                      createdAt={formatTimestamp(post.created_at)}
+                      liked={post.liked || false}
+                      saved={post.saved || false}
+                      likeCount={post.like_count || 0}
+                      saveCount={post.save_count || 0}
+                      commentCount={post.comment_count || 0}
+                      onLike={() => handleLike(post._id)}
+                      onSave={() => handleSave(post._id)}
+                      onComment={() => handleComment(post._id)}
+                      userProfilePic={post.userProfilePic || profile.imageUrl}
+                    />
+                  ))
+                ) : (
+                  <div className="flex">
+                    <p className="text-tiny uppercase font-bold text-black">
+                      No posts yet
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardBody>
+          </Card>
         </div>
 
-        <Input
-          isClearable
-          className="w-full"
-          classNames={{
-            base: "border border-2 focus-within:border-black",
-            inputWrapper: "bg-white",
-            input: "bg-white placeholder:text-black",
-            label: "text-black",
-          }}
-          errorMessage={usernameError}
-          isInvalid={!!usernameError}
-          placeholder="Choose a unique username"
-          value={username}
-          variant="bordered"
-          onChange={(e) => handleUsernameChange(e.target.value)}
-          onClear={() => {
-            setusername("");
-            setUsernameError("");
-          }}
-        />
+        <div className="sticky top-0 w-full md:w-[25%] ml-auto">
+          <Card className="py-4 px-1 w-full mb-4 bg-white">
+            <CardHeader className="pb-0 pt-2 px-3 flex items-start">
+              <div>
+                <h4 className="font-bold text-large ml-4 mt-4 text-black">
+                  About me-
+                </h4>
+              </div>
+            </CardHeader>
+            <CardBody className="overflow-visible py-4 bg-white">
+              <div className="ml-2">
+                {isEditing ? (
+                  <Textarea
+                    isClearable
+                    className="w-full"
+                    classNames={{
+                      base: "border border-2 focus-within:border-black",
+                      inputWrapper: "bg-white focus-within:bg-white",
+                      input: "bg-white hover:bg-white placeholder:text-black",
+                      label: "text-black",
+                    }}
+                    placeholder="About you"
+                    value={formData.aboutyou}
+                    variant="bordered"
+                    onChange={handleInputChange}
+                    onClear={() => setFormData((prev) => ({ ...prev, aboutyou: "" }))}
+                    name="aboutyou"
+                  />
+                ) : (
+                  <div className="flex">
+                    <p className="text-tiny uppercase font-bold ml-1 text-black">
+                      {profile.aboutyou ||
+                        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolorem suscipit sequi autem libero magni ipsa animi fugiat repudiandae tempore, reiciendis, quibusdam quas ipsam quaerat! Distinctio, omnis placeat quidem voluptates animi modi sequi laudantium beatae sed ea. Harum porro impedit doloremque aliquid quae! Aliquam ipsum tempore provident aspernatur voluptatibus inventore incidunt earum accusamus quidem, vero error animi excepturi eaque labore modi magni dolores accusantium! Doloribus similique cumque dignissimos eveniet fuga eum, sapiente pariatur tenetur cupiditate dolores provident iusto, dolor aspernatur sit amet unde ipsum. Et adipisci rem iste, tempora consequuntur asperiores a incidunt quibusdam quae dolores quasi dignissimos dolorum sed veritatis?"}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardBody>
+          </Card>
 
-        <Input
-          isClearable
-          className="w-full"
-          classNames={{
-            base: "border border-2 focus-within:border-black",
-            inputWrapper: "bg-white",
-            input: "bg-white placeholder:text-black",
-            label: "text-black",
-          }}
-          placeholder="Tell us about yourself"
-          value={aboutyou}
-          variant="bordered"
-          onChange={(e) => setaboutyou(e.target.value)}
-          onClear={() => setaboutyou("")}
-        />
+          <Card className="py-4 px-1 w-full bg-white">
+            <CardHeader className="pb-0 pt-2 px-3 flex items-start">
+              <div>
+                <h4 className="font-bold text-large ml-4 mt-4 text-black">
+                  5 things I can yap about-
+                </h4>
+              </div>
+            </CardHeader>
+            <CardBody className="overflow-visible py-4 bg-white">
+              <div className="ml-2">
+                {isEditing ? (
+                  <div className="space-y-3">
+                    {Object.entries(formData.yapTopics).map(([key, topic]) => (
+                      <div key={key} className="space-y-1">
+                        <Input
+                          isClearable
+                          className="w-full"
+                          classNames={{
+                            base: "border border-2 focus-within:border-black",
+                            inputWrapper: "bg-white focus-within:bg-white",
+                            input: "bg-white hover:bg-white placeholder:text-black",
+                            label: "text-black",
+                          }}
+                          placeholder={`Topic ${key.slice(-1)} name`}
+                          type="text"
+                          size="sm"
+                          value={topic.name}
+                          variant="bordered"
+                          onChange={handleInputChange}
+                          onClear={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              yapTopics: {
+                                ...prev.yapTopics,
+                                [key]: { ...prev.yapTopics[key], name: "" },
+                              },
+                            }))
+                          }
+                          name={`yapTopics.${key}.name`}
+                        />
+                        <Textarea
+                          isClearable
+                          className="w-full"
+                          classNames={{
+                            base: "border border-2 focus-within:border-black",
+                            inputWrapper: "bg-white focus-within:bg-white",
+                            input: "bg-white hover:bg-white placeholder:text-black",
+                            label: "text-black",
+                          }}
+                          placeholder={`Topic ${key.slice(-1)} description`}
+                          value={topic.description}
+                          variant="bordered"
+                          size="sm"
+                          onChange={handleInputChange}
+                          onClear={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              yapTopics: {
+                                ...prev.yapTopics,
+                                [key]: { ...prev.yapTopics[key], description: "" },
+                              },
+                            }))
+                          }
+                          name={`yapTopics.${key}.description`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    {Object.entries(profile.yapTopics || {}).map(
+                      ([key, topic]) =>
+                        topic.name && (
+                          <div key={key} className="mt-1 flex">
+                            <p className="text-tiny uppercase font-bold text-black">
+                              {topic.name}:
+                            </p>
+                            <p className="text-tiny uppercase font-bold ml-1 text-black">
+                              {topic.description}
+                            </p>
+                          </div>
+                        ),
+                    )}
+                    {(!profile.yapTopics ||
+                      Object.values(profile.yapTopics).every(
+                        (topic) => !topic.name,
+                      )) && (
+                      <>
+                        <div className="flex">
+                          <p className="text-tiny uppercase font-bold text-black">
+                            Sabrina Carpenter:
+                          </p>
+                          <p className="text-tiny uppercase font-bold ml-1 text-black">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing
+                            elit. Ex assumenda, facilis ut nesciunt eos asperiores
+                            dolorum quasi! Eum, ratione quae?
+                          </p>
+                        </div>
+                        <div className="mt-1 flex">
+                          <p className="text-tiny uppercase font-bold text-black">
+                            Ohio:
+                          </p>
+                          <p className="text-tiny uppercase font-bold ml-1 text-black">
+                            Lorem ipsum dolor sit, amet consectetur adipisicing
+                            elit. Perspiciatis, ratione! Ullam ab minima, dolorem
+                            sequi est mollitia.
+                          </p>
+                        </div>
+                        <div className="mt-1 flex">
+                          <p className="text-tiny uppercase font-bold text-black">
+                            Breaking Bad:
+                          </p>
+                          <p className="text-tiny uppercase font-bold ml-1 text-black">
+                            Lorem ipsum dolor sit amet consectetur adipisicing
+                            elit. Ipsum harum illum rerum necessitatibus iure
+                            reprehenderit.
+                          </p>
+                        </div>
+                        <div className="mt-1 flex">
+                          <p className="text-tiny uppercase font-bold text-black">
+                            Sad:
+                          </p>
+                          <p className="text-tiny uppercase font-bold ml-1 text-black">
+                            Lorem ipsum dolor sit amet consectetur adipisicing
+                            elit. A, aut.
+                          </p>
+                        </div>
+                        <div className="mt-1 flex">
+                          <p className="text-tiny uppercase font-bold text-black">
+                            Beyonce:
+                          </p>
+                          <p className="text-tiny uppercase font-bold ml-1 text-black">
+                            Lorem, ipsum dolor sit amet consectetur adipisicing
+                            elit. Optio nihil voluptatum accusamus laborum!
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            </CardBody>
+          </Card>
 
-        <div className="w-full mt-3">
-          <p className="text-sm text-black mb-2">Select your interests:</p>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Button
-                key={category}
-                className={`transition-all duration-200 ${
-                  likes.includes(category)
-                    ? "bg-black text-white hover:bg-gray-900"
-                    : "text-black border border-black hover:bg-black hover:text-white"
-                }`}
-                size="sm"
-                variant={likes.includes(category) ? "solid" : "ghost"}
-                onClick={() => Addtolist(category)}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-          {likes.length > 0 && (
-            <p className="text-xs text-gray-500 mt-1">Selected: {likes.join(", ")}</p>
+          {isEditing && (
+            <Card className="py-4 px-1 w-full bg-white">
+              <CardBody>
+                <Button onClick={handleSubmit} className="w-full bg-white text-black border border-black rounded-md">
+                  Save Profile
+                </Button>
+              </CardBody>
+            </Card>
           )}
         </div>
-
-        <Button
-          className="w-full bg-black text-white hover:bg-gray-900"
-          disabled={loading || !!usernameError}
-          isLoading={loading}
-          onClick={bye}
-        >
-          {loading ? "Creating Profile..." : "Complete Profile"}
-        </Button>
       </div>
-    </DefaultLayout>
+    </div>
   );
 }
