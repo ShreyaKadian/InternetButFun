@@ -1,3 +1,4 @@
+"use client";
 import { auth, onAuthStateChanged } from "../firebase/firebase";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -14,7 +15,6 @@ import { Card, CardHeader, CardBody, CardFooter } from "@heroui/card";
 import { Input, Textarea, Button } from "@heroui/react";
 import PostCard from "@/components/Postcard";
 import NextLink from "next/link";
-import Head from "@/layouts/default";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -59,12 +59,15 @@ export default function ProfilePage() {
     },
   });
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const cleanApiUrl = API_URL.replace(/\/+$/, "");
+
   const getToken = async () => {
     const user = auth.currentUser;
     if (user) {
       try {
         const token = await user.getIdToken();
-        console.log("Got Firebase token:", token ? "Yes" : "No");
+        console.log("Got Firebase token:", token ? token.substring(0, 10) + "..." : "No");
         return token;
       } catch (error) {
         console.error("Error getting token:", error);
@@ -104,15 +107,14 @@ export default function ProfilePage() {
       return;
     }
     try {
-      const response = await fetch(
-        `http://localhost:8000/like-post/${postId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const fetchUrl = `${cleanApiUrl}/like-post/${postId}`;
+      console.log("Liking post at:", fetchUrl);
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
       if (response.ok) {
         const { like_count } = await response.json();
         setPosts(
@@ -128,8 +130,8 @@ export default function ProfilePage() {
         );
       } else {
         const error = await response.json();
-        console.error("Like error:", error);
-        alert(`Error: ${error.detail}`);
+        console.error("Like error (status:", response.status, "):", error);
+        alert(`Error: ${error.detail || "Failed to like post"}`);
       }
     } catch (err) {
       console.error("Error liking post:", err);
@@ -144,15 +146,14 @@ export default function ProfilePage() {
       return;
     }
     try {
-      const response = await fetch(
-        `http://localhost:8000/save-post/${postId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const fetchUrl = `${cleanApiUrl}/save-post/${postId}`;
+      console.log("Saving post at:", fetchUrl);
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
       if (response.ok) {
         const { save_count } = await response.json();
         setPosts(
@@ -168,8 +169,8 @@ export default function ProfilePage() {
         );
       } else {
         const error = await response.json();
-        console.error("Save error:", error);
-        alert(`Error: ${error.detail}`);
+        console.error("Save error (status:", response.status, "):", error);
+        alert(`Error: ${error.detail || "Failed to save post"}`);
       }
     } catch (err) {
       console.error("Error saving post:", err);
@@ -200,7 +201,9 @@ export default function ProfilePage() {
       return;
     }
     try {
-      const response = await fetch("http://localhost:8000/Auth", {
+      const fetchUrl = `${cleanApiUrl}/Auth`;
+      console.log("Registering profile at:", fetchUrl);
+      const response = await fetch(fetchUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -224,8 +227,8 @@ export default function ProfilePage() {
           router.push(`/${data.username}`);
         }
       } else {
-        console.error("Error registering user:", data.detail);
-        setError(data.detail);
+        console.error("Error registering user (status:", response.status, "):", data.detail);
+        setError(data.detail || "Failed to register profile");
       }
     } catch (error) {
       console.error("Error submitting initial profile:", error);
@@ -245,7 +248,9 @@ export default function ProfilePage() {
         console.log("Set current user:", userInfo);
         try {
           const token = await user.getIdToken();
-          const response = await fetch("http://localhost:8000/Auth", {
+          const fetchUrl = `${cleanApiUrl}/Auth`;
+          console.log("Checking registration at:", fetchUrl);
+          const response = await fetch(fetchUrl, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -255,6 +260,7 @@ export default function ProfilePage() {
           }
         } catch (error) {
           console.error("Error checking user registration:", error);
+          setError("Failed to check user registration");
         }
       } else {
         setCurrentUser(null);
@@ -274,14 +280,13 @@ export default function ProfilePage() {
         console.log("Fetching for username:", username);
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         console.log("Fetching profile with headers:", headers);
-        const profileResponse = await fetch(
-          `http://localhost:8000/profile/${encodeURIComponent(username)}`,
-          { headers },
-        );
+        const profileUrl = `${cleanApiUrl}/profile/${encodeURIComponent(username)}`;
+        console.log("Fetching profile at:", profileUrl);
+        const profileResponse = await fetch(profileUrl, { headers });
         console.log("Profile fetch response status:", profileResponse.status);
         if (!profileResponse.ok) {
           const errorText = await profileResponse.text();
-          console.error("Profile fetch error:", errorText);
+          console.error("Profile fetch error (status:", profileResponse.status, "):", errorText);
           throw new Error(
             `Failed to fetch profile: ${profileResponse.status} ${errorText}`,
           );
@@ -316,14 +321,14 @@ export default function ProfilePage() {
             topic5: { name: "", description: "" },
           },
         });
-        const postsResponse = await fetch(
-          `http://localhost:8000/profile/${encodeURIComponent(username)}/posts`,
-        );
+        const postsUrl = `${cleanApiUrl}/profile/${encodeURIComponent(username)}/posts`;
+        console.log("Fetching posts at:", postsUrl);
+        const postsResponse = await fetch(postsUrl);
         if (postsResponse.ok) {
           const postsData = await postsResponse.json();
           setPosts(Array.isArray(postsData) ? postsData : []);
         } else {
-          console.error("Posts fetch failed:", await postsResponse.text());
+          console.error("Posts fetch failed (status:", postsResponse.status, "):", await postsResponse.text());
           setPosts([]);
         }
       } catch (err) {
@@ -372,17 +377,16 @@ export default function ProfilePage() {
       return;
     }
     try {
-      const response = await fetch(
-        `http://localhost:8000/profile/${username}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
+      const fetchUrl = `${cleanApiUrl}/profile/${username}`;
+      console.log("Updating profile at:", fetchUrl);
+      const response = await fetch(fetchUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify(formData),
+      });
       if (response.ok) {
         const data = await response.json();
         setProfile({ ...profile, ...formData, canEdit: true });
@@ -392,8 +396,8 @@ export default function ProfilePage() {
         }
       } else {
         const error = await response.json();
-        console.error("Update error:", error);
-        alert(`Error: ${error.detail}`);
+        console.error("Update error (status:", response.status, "):", error);
+        alert(`Error: ${error.detail || "Failed to update profile"}`);
       }
     } catch (err) {
       console.error("Error updating profile:", err);
