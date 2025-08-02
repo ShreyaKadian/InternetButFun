@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Card, CardHeader, CardBody, Image, Button } from "@heroui/react";
 import { getAuth } from "firebase/auth";
-
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { PLusbutton } from "@/components/icons";
@@ -35,18 +34,15 @@ export default function NewsPage() {
   const getAuthToken = async (): Promise<string | null> => {
     try {
       const user = auth.currentUser;
-
       if (user) {
-        const token = await user.getIdToken(true); 
-        console.log("Auth token:", token); 
+        const token = await user.getIdToken(true);
+        console.log("Auth token:", token.substring(0, 10) + "...");
         return token;
       }
       console.log("No user logged in");
-
       return null;
     } catch (error) {
       console.error("Error getting auth token:", error);
-
       return null;
     }
   };
@@ -59,26 +55,26 @@ export default function NewsPage() {
 
     try {
       const token = await getAuthToken();
-
       if (!token) {
         setError("unauthorized");
         setLoading(false);
-
         return;
       }
 
-      const response = await fetch(
-        `http://localhost:8000/news?page=${page}&limit=10`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
+      const fetchUrl = `${cleanApiUrl}/news?page=${page}&limit=10`;
+      console.log("Fetching from:", fetchUrl);
+
+      const response = await fetch(fetchUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (!response.ok) {
-        console.log("Response status:", response.status); // Debug log
+        console.log("Response status:", response.status);
         if (response.status === 404) {
           setError("notFound");
         } else if (response.status >= 500) {
@@ -88,21 +84,18 @@ export default function NewsPage() {
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         return;
       }
 
       const newItems: Item[] = await response.json();
-
-      console.log("Fetched items:", newItems); 
+      console.log("Fetched items:", newItems);
       if (isInitial) {
-        setItems(newItems);
+        setItems(newItems || []);
       } else {
         setItems((prev) => {
           const uniqueItems = newItems.filter(
             (newItem) => !prev.some((item) => item._id === newItem._id),
           );
-
           return [...prev, ...uniqueItems];
         });
       }
@@ -161,7 +154,6 @@ export default function NewsPage() {
     const then = new Date(dateStr);
     const diffMs = now.getTime() - then.getTime();
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-
     return `${diffHours} hours ago`;
   };
 
@@ -186,7 +178,7 @@ export default function NewsPage() {
     <DefaultLayout>
       <section className="flex flex-col gap-10 py-8 md:py-10">
         <div className="ml-52 mt-4">
-<h1 className={`${title()} text-black`}>News</h1>
+          <h1 className={`${title()} text-black`}>News</h1>
         </div>
         <div className="flex flex-col gap-6 ml-16 w-full px-4">
           {items.length === 0 && !loading ? (

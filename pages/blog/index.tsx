@@ -1,7 +1,6 @@
 import { Avatar, Card, CardHeader, CardBody, Image } from "@heroui/react";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { User, setPersistence, browserLocalPersistence } from "firebase/auth";
-
 import DefaultLayout from "@/layouts/default";
 import { title } from "@/components/primitives";
 import { HeartIcon, Comments } from "@/components/icons";
@@ -38,22 +37,22 @@ export default function UpdatesPage() {
 
       try {
         const token = await auth.currentUser.getIdToken(true);
-
         if (!token) {
           console.log("No auth token found");
           setError("unauthorized");
           setLoading(false);
-
           return;
         }
-        console.log("Auth token:", token);
+        console.log("Auth token:", token.substring(0, 10) + "...");
 
-        const response = await fetch(
-          `http://localhost:8000/blog?page=${pageNum}&limit=10`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
-        );
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const cleanApiUrl = API_URL.replace(/\/+$/, "");
+        const fetchUrl = `${cleanApiUrl}/blog?page=${pageNum}&limit=10`;
+        console.log("Fetching from:", fetchUrl);
+
+        const response = await fetch(fetchUrl, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         console.log("Fetch updates response status:", response.status);
 
@@ -68,12 +67,10 @@ export default function UpdatesPage() {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           setLoading(false);
-
           return;
         }
 
         const data = await response.json();
-
         console.log("Fetched items:", data);
 
         if (data.length < 10) setHasMore(false);
@@ -98,7 +95,6 @@ export default function UpdatesPage() {
             (newItem: UpdateItem) =>
               !prev.some((item) => item._id === newItem._id),
           );
-
           return uniqueItems.length > 0 ? [...prev, ...uniqueItems] : prev;
         });
       } catch (error) {
@@ -114,32 +110,31 @@ export default function UpdatesPage() {
   const handleLike = async (updateId: string, isLiked: boolean) => {
     if (!auth.currentUser) {
       setError("unauthorized");
-
       return;
     }
 
     try {
       const token = await auth.currentUser.getIdToken(true);
-
       if (!token) {
         console.log("No auth token found for like");
         setError("unauthorized");
-
         return;
       }
-      console.log("Like token:", token);
+      console.log("Like token:", token.substring(0, 10) + "...");
 
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
       const endpoint = isLiked ? "/unlike" : "/like";
-      const response = await fetch(
-        `http://localhost:8000/updates/${updateId}${endpoint}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+      const fetchUrl = `${cleanApiUrl}/updates/${updateId}${endpoint}`;
+      console.log("Liking/unliking at:", fetchUrl);
+
+      const response = await fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (!response.ok) {
         console.log("Like response status:", response.status);
@@ -150,7 +145,6 @@ export default function UpdatesPage() {
         } else {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         return;
       }
 
@@ -210,7 +204,6 @@ export default function UpdatesPage() {
     );
 
     const currentLoader = loaderRef.current;
-
     if (currentLoader) observer.observe(currentLoader);
 
     return () => {
@@ -254,7 +247,6 @@ export default function UpdatesPage() {
                         const img = document.querySelector(
                           `img[src="${item.image_url}"]`,
                         ) as HTMLImageElement;
-
                         if (img)
                           img.src =
                             "https://i.pravatar.cc/150?u=a042581f4e29026024d";
@@ -301,7 +293,6 @@ export default function UpdatesPage() {
                       const img = document.querySelector(
                         `img[src="${item.image_url}"]`,
                       ) as HTMLImageElement;
-
                       if (img)
                         img.src =
                           "https://heroui.com/images/hero-card-complete.jpeg";
