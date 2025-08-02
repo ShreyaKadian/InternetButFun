@@ -36,14 +36,22 @@ export default function Auth() {
         const idToken = await userCredential.user.getIdToken();
 
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        if (typeof window !== "undefined" && (!API_URL || API_URL.includes("localhost"))) {
-          console.error("Invalid API_URL:", API_URL, "Aborting request.");
-          setMessage({ type: "error", text: "Server configuration error. Contact support." });
+        if (!API_URL) {
+          console.error("NEXT_PUBLIC_API_URL is not defined");
+          setMessage({ 
+            type: "error", 
+            text: "Server configuration error. Contact support." 
+          });
           return;
         }
-        console.log("Sending to:", `${process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, '')}/Auth`);
+        
+        // Clean the API URL (remove trailing slashes)
+        const cleanApiUrl = API_URL.replace(/\/+$/, "");
+        const authEndpoint = `${cleanApiUrl}/Auth`;
+        
+        console.log("Sending to:", authEndpoint);
         console.log("Token:", idToken ? idToken.substring(0, 10) + "..." : "No token");
-        const response = await fetch(`${API_URL.replace(/\/+$/, '')}/Auth`, {
+        const response = await fetch(authEndpoint, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${idToken}`,
@@ -53,7 +61,10 @@ export default function Auth() {
 
         if (!response.ok) {
           const error = await response.json().catch(() => ({ detail: "Unknown error" }));
-          throw new Error(error.detail || `Failed to register user in database (Status: ${response.status})`);
+          throw new Error(
+            error.detail || 
+            `Failed to register user in database (Status: ${response.status})`
+          );
         }
 
         router.push("/register");
@@ -105,7 +116,7 @@ export default function Auth() {
             base: "border border-2 focus-within:border-black",
             inputWrapper: "bg-transparent focus-within:bg-transparent",
             input: "bg-transparent hover:bg-transparent placeholder:text-black",
-            label: "black",
+            label: "text-black",
           }}
           label="Password"
           placeholder="Enter your password"

@@ -37,6 +37,22 @@ export default function IndexPage() {
     return null;
   };
 
+  const getApiUrl = (): string | null => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    
+    if (!API_URL) {
+      console.error("NEXT_PUBLIC_API_URL is not defined");
+      return null;
+    }
+
+    if (typeof window !== "undefined" && API_URL.includes("localhost")) {
+      console.error("Invalid API_URL:", API_URL, "Localhost not allowed in production.");
+      return null;
+    }
+
+    return API_URL.replace(/\/+$/, '');
+  };
+
   const bye = async () => {
     if (!username.trim()) {
       alert("Please enter a username");
@@ -61,14 +77,16 @@ export default function IndexPage() {
         return;
       }
 
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      if (typeof window !== "undefined" && (!API_URL || API_URL.includes("localhost"))) {
-        console.error("Invalid API_URL:", API_URL, "Aborting request.");
+      const apiUrl = getApiUrl();
+      if (!apiUrl) {
         alert("Server configuration error. Contact support.");
+        setLoading(false);
         return;
       }
-      console.log("Sending to:", `${API_URL.replace(/\/+$/, '')}/complete-profile`);
+
+      console.log("Sending to:", `${apiUrl}/complete-profile`);
       console.log("Token:", token ? token.substring(0, 10) + "..." : "No token");
+      
       const profileData = {
         username: username.trim(),
         aboutyou: aboutyou.trim(),
@@ -79,7 +97,7 @@ export default function IndexPage() {
             : null,
       };
 
-      const response = await fetch(`${API_URL.replace(/\/+$/, '')}/complete-profile`, {
+      const response = await fetch(`${apiUrl}/complete-profile`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,8 +111,8 @@ export default function IndexPage() {
         alert("Profile created successfully!");
         router.push("/");
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.detail}`);
+        const error = await response.json().catch(() => ({ detail: "Unknown error" }));
+        alert(`Error: ${error.detail || 'Failed to create profile'}`);
       }
     } catch (error) {
       console.error("Error creating profile:", error);
@@ -143,13 +161,14 @@ export default function IndexPage() {
 
       if (!token) return;
 
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      if (typeof window !== "undefined" && (!API_URL || API_URL.includes("localhost"))) {
-        console.error("Invalid API_URL:", API_URL, "Aborting request.");
+      const apiUrl = getApiUrl();
+      if (!apiUrl) {
+        console.error("Cannot check username availability: API URL not configured");
         return;
       }
+
       const response = await fetch(
-        `${API_URL.replace(/\/+$/, '')}/check-username/${usernameToCheck}`,
+        `${apiUrl}/check-username/${usernameToCheck}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -165,6 +184,8 @@ export default function IndexPage() {
         } else {
           setUsernameError("");
         }
+      } else {
+        console.error("Username check failed:", response.status);
       }
     } catch (error) {
       console.error("Error checking username:", error);
