@@ -471,7 +471,7 @@ export default function ProfilePage() {
                   classNames={{
                     base: "border border-2 focus-within:border-black",
                     inputWrapper: "bg-white focus-within:bg-white",
-                    input: "bg-white hover:bg-white placeholder:text-black",
+                    input: "bg-white hover:bg-white placeholder:text-black text-black",
                     label: "text-black",
                   }}
                   placeholder="Username"
@@ -488,7 +488,7 @@ export default function ProfilePage() {
                   classNames={{
                     base: "border border-2 focus-within:border-black",
                     inputWrapper: "bg-white focus-within:bg-white",
-                    input: "bg-white hover:bg-white placeholder:text-black",
+                    input: "bg-white hover:bg-white placeholder:text-black text-black",
                     label: "text-black",
                   }}
                   placeholder="About You"
@@ -504,7 +504,7 @@ export default function ProfilePage() {
                   classNames={{
                     base: "border border-2 focus-within:border-black",
                     inputWrapper: "bg-white focus-within:bg-white",
-                    input: "bg-white hover:bg-white placeholder:text-black",
+                    input: "bg-white hover:bg-white placeholder:text-black text-black",
                     label: "text-black",
                   }}
                   placeholder="Likes (comma-separated)"
@@ -521,7 +521,7 @@ export default function ProfilePage() {
                   classNames={{
                     base: "border border-2 focus-within:border-black",
                     inputWrapper: "bg-white focus-within:bg-white",
-                    input: "bg-white hover:bg-white placeholder:text-black",
+                    input: "bg-white hover:bg-white placeholder:text-black text-black",
                     label: "text-black",
                   }}
                   placeholder="Image URL"
@@ -612,7 +612,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder="Username"
@@ -629,7 +629,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder="Title"
@@ -646,7 +646,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder="Location"
@@ -663,7 +663,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder="Age"
@@ -680,7 +680,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder="Image URL"
@@ -720,7 +720,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder="Mood"
@@ -737,7 +737,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder="Status"
@@ -808,7 +808,7 @@ export default function ProfilePage() {
                       classNames={{
                         base: "border border-2 focus-within:border-black",
                         inputWrapper: "bg-white focus-within:bg-white",
-                        input: "bg-white hover:bg-white placeholder:text-black",
+                        input: "bg-white hover:bg-white placeholder:text-black text-black",
                         label: "text-black",
                       }}
                       placeholder={`${key.charAt(0).toUpperCase() + key.slice(1)} URL`}
@@ -884,7 +884,7 @@ export default function ProfilePage() {
                   classNames={{
                     base: "border border-2 focus-within:border-black",
                     inputWrapper: "bg-white focus-within:bg-white",
-                    input: "bg-white hover:bg-white placeholder:text-black",
+                    input: "bg-white hover:bg-white placeholder:text-black text-black",
                     label: "text-black",
                   }}
                   placeholder="Likes (comma-separated)"
@@ -980,7 +980,7 @@ export default function ProfilePage() {
                     classNames={{
                       base: "border border-2 focus-within:border-black",
                       inputWrapper: "bg-white focus-within:bg-white",
-                      input: "bg-white hover:bg-white placeholder:text-black",
+                      input: "bg-white hover:bg-white placeholder:text-black text-black",
                       label: "text-black",
                     }}
                     placeholder="About you"
@@ -1022,7 +1022,7 @@ export default function ProfilePage() {
                           classNames={{
                             base: "border border-2 focus-within:border-black",
                             inputWrapper: "bg-white focus-within:bg-white",
-                            input: "bg-white hover:bg-white placeholder:text-black",
+                            input: "bg-white hover:bg-white placeholder:text-black text-black",
                             label: "text-black",
                           }}
                           placeholder={`Topic ${key.slice(-1)} name`}
@@ -1048,7 +1048,7 @@ export default function ProfilePage() {
                           classNames={{
                             base: "border border-2 focus-within:border-black",
                             inputWrapper: "bg-white focus-within:bg-white",
-                            input: "bg-white hover:bg-white placeholder:text-black",
+                            input: "bg-white hover:bg-white placeholder:text-black text-black",
                             label: "text-black",
                           }}
                           placeholder={`Topic ${key.slice(-1)} description`}
