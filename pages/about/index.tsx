@@ -2,18 +2,12 @@
 
 import { Card, CardBody } from "@heroui/react";
 import { motion } from "framer-motion";
+import DefaultLayout from "@/layouts/default";
+
 
 export default function AboutPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-white text-black p-4">
-      <Card className="w-full max-w-2xl">
-        <CardBody>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-4"
-          >
+    <DefaultLayout>
             <h1 className="text-3xl font-bold">About InternetButFun</h1>
             <p>
               Social media websites today like Twitter, Instagram, and Reddit are depressing,
@@ -40,9 +34,7 @@ export default function AboutPage() {
               This is your internet. Let&apos;s make it fun again. Let&apos;s make it weird again.
               Let&apos;s make it feel again.
             </p>
-          </motion.div>
-        </CardBody>
-      </Card>
-    </div>
+            </DefaultLayout>
+      
   );
 }

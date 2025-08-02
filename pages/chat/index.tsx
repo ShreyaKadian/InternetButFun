@@ -43,9 +43,16 @@ export default function ChatPage() {
     const auth = getAuth();
     const user = auth.currentUser;
     if (user) {
-      const token = await user.getIdToken(true);
-      return token;
+      try {
+        const token = await user.getIdToken(true);
+        console.log("Auth token:", token.substring(0, 10) + "...");
+        return token;
+      } catch (error) {
+        console.error("Error getting auth token:", error);
+        return "";
+      }
     }
+    console.log("No user logged in");
     return "";
   };
 
@@ -59,13 +66,20 @@ export default function ChatPage() {
     if (wsRef.current) return;
 
     try {
-      const response = await fetch("http://localhost:8000/Auth", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
+      const authUrl = `${cleanApiUrl}/Auth`;
+      console.log("Authenticating at:", authUrl);
+
+      const response = await fetch(authUrl, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (!response.ok) {
+        console.log("Auth response status:", response.status);
         if (response.status === 401 || response.status === 403) {
           setError("unauthorized");
         } else if (response.status >= 500) {
@@ -75,36 +89,43 @@ export default function ChatPage() {
         }
         return;
       }
+
+      const wsProtocol = cleanApiUrl.startsWith("https") ? "wss" : "ws";
+      const wsUrl = `${wsProtocol}://${cleanApiUrl.replace(/^https?:\/\//, "")}/chat?token=Bearer%20${token}`;
+      console.log("Connecting to WebSocket:", wsUrl);
+
+      const socket = new WebSocket(wsUrl);
+      wsRef.current = socket;
+
+      socket.onopen = () => {
+        setError(null);
+        console.log("WebSocket connected");
+      };
+
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        setMessages((prev) => {
+          const isDuplicate = prev.some(
+            (msg) => msg.timestamp === data.timestamp && msg.sender_id === data.sender_id
+          );
+          return isDuplicate ? prev : [...prev, data];
+        });
+      };
+
+      socket.onclose = () => {
+        wsRef.current = null;
+        setError("networkError");
+        console.log("WebSocket closed");
+      };
+
+      socket.onerror = () => {
+        setError("networkError");
+        console.error("WebSocket error");
+      };
     } catch (error) {
+      console.error("Error setting up chat:", error);
       setError("networkError");
-      return;
     }
-
-    const socket = new WebSocket(`ws://localhost:8000/chat?token=Bearer%20${token}`);
-    wsRef.current = socket;
-
-    socket.onopen = () => {
-      setError(null);
-    };
-
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setMessages((prev) => {
-        const isDuplicate = prev.some(
-          (msg) => msg.timestamp === data.timestamp && msg.sender_id === data.sender_id
-        );
-        return isDuplicate ? prev : [...prev, data];
-      });
-    };
-
-    socket.onclose = () => {
-      wsRef.current = null;
-      setError("networkError");
-    };
-
-    socket.onerror = () => {
-      setError("networkError");
-    };
   };
 
   useEffect(() => {
@@ -203,7 +224,7 @@ export default function ChatPage() {
               label: "text-black",
             }}
             ref={inputRef}
-            placeholder="Enter your title"
+            placeholder="Enter your message"
             type="text"
             value={input}
             variant="bordered"
