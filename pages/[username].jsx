@@ -594,7 +594,7 @@ export default function ProfilePage() {
         </div>
       </header>
 
-      <div className="container mx-auto p-4 flex flex-col md:flex-row gap-4 mt-20">
+      <div className="container mx-auto p-4 flex flex-col md:flex-row gap-4 mt-20 text-black">
         <div className="flex flex-col w-full md:w-3/4 gap-4">
           <Card className="py-4 px-1 w-full bg-white">
             <CardHeader className="pb-0 pt-2 px-3 flex items-start">
