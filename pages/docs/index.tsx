@@ -70,8 +70,17 @@ export default function DocsPage() {
       }
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const fetchUrl = `${API_URL.replace(/\/+$/, '')}/posts`; // Remove trailing slashes
-      console.log("Fetching from:", fetchUrl); // Debug log
+      if (!API_URL) {
+        console.error("NEXT_PUBLIC_API_URL is not defined");
+        setError("serverError");
+        setLoading(false);
+        return;
+      }
+
+      // Clean the API URL (remove trailing slashes)
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
+      const fetchUrl = `${cleanApiUrl}/posts`;
+      console.log("Fetching from:", fetchUrl);
       const response = await fetch(fetchUrl, {
         method: "GET",
         headers: {
@@ -95,7 +104,7 @@ export default function DocsPage() {
       if (isInitial) {
         setPosts(newPosts);
       } else {
-        setPosts((prevPosts) => [...prevPosts, ...newPosts]); // Append posts
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
       }
       if (newPosts.length < 10) {
         setHasMore(false);
@@ -145,8 +154,15 @@ export default function DocsPage() {
       }
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      if (!API_URL) {
+        console.error("NEXT_PUBLIC_API_URL is not defined");
+        setError("serverError");
+        return;
+      }
+
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
       const endpoint = post.liked ? "unlike" : "like";
-      const response = await fetch(`${API_URL.replace(/\/+$/, '')}/posts/${postId}/${endpoint}`, {
+      const response = await fetch(`${cleanApiUrl}/posts/${postId}/${endpoint}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -190,8 +206,15 @@ export default function DocsPage() {
       }
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      if (!API_URL) {
+        console.error("NEXT_PUBLIC_API_URL is not defined");
+        setError("serverError");
+        return;
+      }
+
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
       const endpoint = post.saved ? "unsave" : "save";
-      const response = await fetch(`${API_URL.replace(/\/+$/, '')}/posts/${postId}/${endpoint}`, {
+      const response = await fetch(`${cleanApiUrl}/posts/${postId}/${endpoint}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -229,7 +252,14 @@ export default function DocsPage() {
       }
 
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const response = await fetch(`${API_URL.replace(/\/+$/, '')}/posts/${postId}/comment`, {
+      if (!API_URL) {
+        console.error("NEXT_PUBLIC_API_URL is not defined");
+        setError("serverError");
+        return;
+      }
+
+      const cleanApiUrl = API_URL.replace(/\/+$/, "");
+      const response = await fetch(`${cleanApiUrl}/posts/${postId}/comment`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -239,7 +269,7 @@ export default function DocsPage() {
       });
 
       if (response.ok) {
-        loadPosts(true); // Reload posts to reflect new comment
+        loadPosts(true);
       } else {
         setError("serverError");
       }
